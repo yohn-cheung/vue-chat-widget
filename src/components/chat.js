@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import './chat.css'
 
 export default Vue.extend({
   name: 'simac-chat',
@@ -17,17 +18,35 @@ export default Vue.extend({
     }
   },
   render(createElement) {
-    const title = createElement('h4', { class: 'title' }, this.title)
-    const body = createElement('div', 'This is be Franckys input') 
-    const wrapper = createElement('div', { attrs: {id: 'wrapper'} }, [title, body])
-    const button = createElement('button', {
+
+    const title = createElement('q-card-section', [createElement('div', {class: 'text-h6'}, this.title)])
+
+    const body = createElement('q-card-section', {
+      class: 'q-pt-none'
+    }, 'This is be Franckys input')
+
+    const wrapper = createElement('q-card', { 
+      class: 'my-card q-my-md',
+      attrs: {id: 'wrapper'},
+      props: {
+        flat: true,
+        bordered: true
+      }
+    }, [title, body])
+    const button = createElement('q-btn', {
+      class: 'float-right',
+      props: {
+        icon: 'chat',
+        round: true,
+        size: 'md'
+      },
       on: {
         click: this.toggleButtonChat
       }
-    }, 'Open/Close Chat')
+    })
 
     return createElement('div', {
-      class: 'simac-chat'
+      class: 'simac-chat q-pa-md fixed-bottom-right'
     }, [wrapper, button])
   }
 })

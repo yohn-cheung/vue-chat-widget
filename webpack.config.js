@@ -7,7 +7,7 @@ module.exports = (env) => {
     const isDevBuild = !(env && env.prod); 
 
     return [{
-        entry: './index.js',
+        entry: './src/index.js',
         output: {
             filename: 'widget.js',
             path: path.resolve(bundleOutputDir),
@@ -17,28 +17,35 @@ module.exports = (env) => {
         },
         plugins: isDevBuild
             ? [new webpack.SourceMapDevToolPlugin(), new copyWebpackPlugin({ patterns: [{ from: 'dev/'}]})]
-            : [],
-        module: {
-            rules: [
-                {
-                    test: /\.js$/,
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env']
-                    }
-                }, {
-                    test: /.vue$/, 
-                    loader: 'vue-loader'
-                },
-                {
-                    test: /\.css$/, 
-                    use: [
-                        'vue-style-loader',
-                        'css-loader'
-                    ]
-                }
-            ]
-        }
+            : [new webpack.optimize.UglifyJsPlugin()],
+            module: {
+                rules: [
+                    { test: /\.html$/i, use: 'html-loader' },
+                    { test: /\.css$/i, use: ['style-loader', 'css-loader' + (isDevBuild ? '' : '?minimize')] },
+                    {
+                        test: /\.js$/i, exclude: /node_modules/, use: {
+                            loader: 'babel-loader',
+                            options: {
+                                presets: [['@babel/env', {
+                                    'targets': {
+                                        'browsers': ['ie 6', 'safari 7']
+                                    }
+                                }]]
+                            }
+                        }
+                    },
+                    { test: /\.s[ac]ss$/i, use: [
+                      	// Creates `style` nodes from JS strings
+                        'style-loader',
+                        // Translates CSS into CommonJS
+                        'css-loader',
+                        // Compiles Sass to CSS
+                        'sass-loader',
+                      ]
+					},
+				    {test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg)$/,loader: 'file-loader?limit=100000'}
+                ]
+            }
     }]
     
 };

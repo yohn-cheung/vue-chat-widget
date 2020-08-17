@@ -16,7 +16,6 @@ module.exports = (env) => {
             contentBase: bundleOutputDir
         },
         plugins: isDevBuild
-            // ? [new webpack.SourceMapDevToolPlugin(), new copyWebpackPlugin([{ from: 'dev/' }])]
             ? [new webpack.SourceMapDevToolPlugin(), new copyWebpackPlugin({ patterns: [{ from: 'dev/'}]})]
             : [],
         module: {

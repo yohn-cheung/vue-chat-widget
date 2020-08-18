@@ -5,16 +5,20 @@ export default Vue.extend({
   name: 'simac-chat',
   data() {
     return {
-      title: 'ChatBot'
+      title: 'ChatBot',
+      icon: 'close'
     }
   },
   methods: {
     toggleButtonChat() {
-      // this.toggleChat = !this.toggleChat
-      console.log('test')
-
       const wrapper = document.getElementById('wrapper')
-			wrapper.style.display = wrapper.style.display === 'none' ? '' : 'none';
+      wrapper.style.display = wrapper.style.display === 'none' ? '' : 'none';
+      
+      if(wrapper.style.display === 'none' ){
+        this.icon = 'chat'
+      } else {
+        this.icon = 'close'
+      }
     }
   },
   render(createElement) {
@@ -36,7 +40,7 @@ export default Vue.extend({
     const button = createElement('q-btn', {
       class: 'float-right',
       props: {
-        icon: 'chat',
+        icon: this.icon,
         round: true,
         size: 'md'
       },

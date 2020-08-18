@@ -10,7 +10,21 @@ const win = window
 const instanceName = scriptElement?.attributes.getNamedItem('id')?.value ?? DEFAULT_NAME;
 const loaderObject= win[instanceName];
 
+// This can be changed later
+let defaultConfig = {
+    debug: false,
+    tenant: {
+        name: '',
+        id: ''
+    },
+    text: {
+        title: null
+    }
+}
 let widgetID = null
+
+// zelfstaande packages dat niet is afhankelijk van andere packages 
+// naam en API key, mantelzorg, vrijwilligers, algemene vragen. 
 
 // get a hold of script tag instance, which has an
 // attribute `id` with unique identifier of the widget instance
@@ -39,7 +53,10 @@ for (let i = 0; i < loaderObject.q.length; i++) {
 
     switch (methodName) {
         case 'init':
-            const loadedObject = Object.assign(item[1]);
+            const loadedObject = Object.assign(defaultConfig, item[1]);
+            console.log('loadedObject: ', loadedObject)
+            // console.log(`Starting widget [${instanceName}]`, loadedObject); 
+
             if (loadedObject.debug) {
                 console.log(`Starting widget [${instanceName}]`, loadedObject); 
             }
@@ -50,6 +67,8 @@ for (let i = 0; i < loaderObject.q.length; i++) {
             targetElement.setAttribute('id', `widget-${instanceName}`);
 
             widgetID = `#widget-${instanceName}`
+
+            console.log('widgetID: ', widgetID)
             
 
             document.body.appendChild(targetElement)
@@ -63,7 +82,10 @@ for (let i = 0; i < loaderObject.q.length; i++) {
     }
 }
 
+// console.log('widgetID outside of the function: ', widgetID)
+
 new Vue({
     el: widgetID,
-    render: (h) => h(Chat)
+    props: ['config'], 
+    render: (h) => h(Chat, {props:{ config: defaultConfig}})
 })

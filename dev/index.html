@@ -16,7 +16,15 @@
             js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
             js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
         }(window, document, 'script', '_hw', './widget.js'));
-        _hw('init', { debug: true });
+        _hw('init', { tenant: {name: 'de schoor', id: 1}, text: {title: 'De Schoor Chat' }});
     </script>
+    <!-- <script>
+        (function (w, d, s, o, f, js, fjs) {
+            w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
+            js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
+            js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
+        }(window, document, 'script', 'aw1', './widget.js'));
+        aw1('init', { tenant: {name: 'simac', id: 1}, text: {title: 'Simac Chat' }});
+    </script> -->
 </body>
 </html>

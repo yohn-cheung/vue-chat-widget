@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Chat from './components/chat.js'
+import './quasar.js'
 
 
 const DEFAULT_NAME = '_hw';

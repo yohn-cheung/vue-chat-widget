@@ -3,9 +3,10 @@ import './chat.css'
 
 export default Vue.extend({
   name: 'simac-chat',
+  props: ['config'],
   data() {
     return {
-      title: 'ChatBot',
+      title: this.config.text.title,
       icon: 'close'
     }
   },
@@ -22,6 +23,7 @@ export default Vue.extend({
     }
   },
   render(createElement) {
+    // console.log('config in chat.js file: ', this.config.text.title)
 
     const title = createElement('q-card-section', [createElement('div', {class: 'text-h6'}, this.title)])
 

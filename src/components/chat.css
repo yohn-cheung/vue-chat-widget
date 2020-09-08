@@ -1,4 +1,9 @@
 .simac-chat{
-width: 100%;
-  max-width: 300px;
+  width: 100%;
+  max-width: 375px;
+}
+
+.conversation {
+  height: 475px;
+  background: rgb(234, 238, 243);
 }

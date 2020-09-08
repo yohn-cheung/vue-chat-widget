@@ -13,8 +13,11 @@
   "main": "index.js",
   "dependencies": {
     "@quasar/extras": "^1.9.4",
+    "aws-amplify": "^3.1.1",
+    "core-js": "^3.6.5",
     "file-loader": "^6.0.0",
     "quasar": "^1.12.13",
+    "regenerator-runtime": "^0.13.7",
     "vue": "^2.6.11"
   },
   "devDependencies": {
@@ -42,6 +45,15 @@
   "keywords": [],
   "license": "ISC",
   "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "useBuiltIns": "usage",
+          "corejs": 3
+        }
+      ]
+    ],
     "plugins": [
       [
         "transform-imports",
@@ -53,5 +65,12 @@
         }
       ]
     ]
-  }
+  },
+  "browserslist": [
+    "last 3 and_chr versions",
+    "last 3 chrome versions",
+    "last 3 opera versions",
+    "last 3 ios_saf versions",
+    "last 3 safari versions"
+  ]
 }

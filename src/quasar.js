@@ -10,6 +10,12 @@ import {
     QCard,
     QCardSection,
     QCardActions,
+    QChatMessage,
+    QInput,
+    QChip,
+    QSpinner,
+    QFooter,
+    QToolbar,
     QBtn
   } from 'quasar'
 
@@ -20,6 +26,12 @@ Vue.use(Quasar, {
       QCard,
       QCardSection,
       QCardActions,
+      QChatMessage,
+      QInput,
+      QChip,
+      QSpinner,
+      QFooter,
+      QToolbar,
       QBtn
     }
   })

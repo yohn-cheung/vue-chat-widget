@@ -111,8 +111,6 @@ export default Vue.extend({
 
       if (!newMessage) return
       const botResponse = await this.sendTolex(newMessage)
-      // console.log('botResponse: ', botResponse)
-      console.log('diaLogState: ', botResponse.dialogState)
       if (botResponse.responseCard) {
         options = botResponse.responseCard.genericAttachments[0]
       } else {
@@ -152,13 +150,9 @@ export default Vue.extend({
         })
         this.chatConversation.push(chat)
 
-        // this.storeConversation.push(data)
-        // LocalStorage.set('conversation', this.storeConversation)
-
         if(state === 'Fulfilled'){
           console.log('Fulfilled')
           this.storeConversation = []
-          // LocalStorage.set('conversation', this.storeConversation)
         } else {
           this.storeConversation.push(data)
         }

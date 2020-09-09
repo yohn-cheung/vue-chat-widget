@@ -4,7 +4,7 @@
 }
 
 .conversation {
-  /* height: 475px;
-  overflow-y: auto !important; */
+  height: 475px;
+  overflow: auto;
   background: rgb(234, 238, 243);
 }

@@ -29,10 +29,6 @@ export default Vue.extend({
     let conversation = LocalStorage.getItem('conversation')
     let options = LocalStorage.getItem('options')
 
-    // this.storeConversation = conversation
-
-    console.log('conversation: ', conversation)
-
     if(conversation) {
       conversation.forEach(chat => {
         const chatMessage = this.createElement('q-chat-message', {
@@ -74,7 +70,7 @@ export default Vue.extend({
       LocalStorage.set('options', options)
 
       options.buttons.forEach(option => {
-        const button = this.createElement('q-chip', { props: { outline: true } }, [
+        const button = this.createElement('q-chip', { props: { outline: true }, class: "bg-teal text-white" }, [
           this.createElement('q-btn', {
             props: {
               round: true,
@@ -190,9 +186,21 @@ export default Vue.extend({
     })
     const footer = createElement('q-card-section', [qInput])
 
-    const body = createElement('q-card-section', {
-      class: 'q-pa-md column col justify-end conversation'
+    // const body = createElement('q-card-section', {
+    //   class: 'flex column conversation'
+    // }, [self.chatConversation, self.btnOptions])
+
+    // const chatWrapper = createElement('div', {
+    //   class: 'q-pa-md column col justify-end'
+    // }, [ ])
+
+    const chatWrapper = createElement('div', {
+      class: 'justify-end',
     }, [self.chatConversation, self.btnOptions])
+
+    const body = createElement('q-card-section', {
+      class: 'flex column conversation'
+    }, [chatWrapper])
     
     const wrapper = createElement('q-card', { 
       class: 'my-card q-my-md',

@@ -16,7 +16,8 @@ import {
     QSpinner,
     QFooter,
     QToolbar,
-    QBtn
+    QBtn,
+    LocalStorage
   } from 'quasar'
 
 import 'quasar/dist/quasar.min.css'
@@ -33,5 +34,8 @@ Vue.use(Quasar, {
       QFooter,
       QToolbar,
       QBtn
+    },
+    plugins: {
+      LocalStorage
     }
   })

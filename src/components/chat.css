@@ -8,3 +8,11 @@
   overflow: auto;
   background: rgb(234, 238, 243);
 }
+
+#spinner {
+  display: none;
+  /* position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, -50%) */
+}

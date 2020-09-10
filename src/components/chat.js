@@ -18,9 +18,7 @@ export default Vue.extend({
       icon: 'close',
       chatInput: '',
       chatConversation: [],
-      visibleSpiner: false,
       btnOptions: [],
-      optionVisible: false,
       storeConversation: [],
       createElement: null
     }
@@ -132,6 +130,8 @@ export default Vue.extend({
       LocalStorage.set('conversation', this.storeConversation)
     },
     sendBotMessage (message, state) {
+      document.getElementById('spinner').style.display = 'block'
+
       let data = {
         avatar: 'https://tr1.cbsistatic.com/hub/i/r/2015/12/16/978e8dea-5c7d-4482-ab5f-016d7633951c/resize/770x/3117e58fdf7da32dac9d59d4f4364e22/artificial-intelligence-brain-ai.jpg',
         text: [message],
@@ -154,7 +154,7 @@ export default Vue.extend({
         }
 
         LocalStorage.set('conversation', this.storeConversation)
-
+        document.getElementById('spinner').style.display = 'none'
       }, 1500)
       this.btnOptions = []
     }
@@ -186,17 +186,19 @@ export default Vue.extend({
     })
     const footer = createElement('q-card-section', [qInput])
 
-    // const body = createElement('q-card-section', {
-    //   class: 'flex column conversation'
-    // }, [self.chatConversation, self.btnOptions])
+    // q-spinners-dots
+    const QSpinnerDots = createElement('div', { attrs: { id: 'spinner' }, class: "spinner-position"}, [
+      createElement('q-spinner-dots', {
+        props: {
+          size: '2rem'
+        }
+      })
+    ])
 
-    // const chatWrapper = createElement('div', {
-    //   class: 'q-pa-md column col justify-end'
-    // }, [ ])
-
+    // chat wrapper for the chat-messages, options and the q-spinners dots
     const chatWrapper = createElement('div', {
-      class: 'justify-end',
-    }, [self.chatConversation, self.btnOptions])
+      class: '',
+    }, [self.chatConversation, self.btnOptions, QSpinnerDots])
 
     const body = createElement('q-card-section', {
       class: 'flex column conversation'

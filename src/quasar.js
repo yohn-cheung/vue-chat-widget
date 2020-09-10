@@ -13,9 +13,7 @@ import {
     QChatMessage,
     QInput,
     QChip,
-    QSpinner,
-    QFooter,
-    QToolbar,
+    QSpinnerDots,
     QBtn,
     LocalStorage
   } from 'quasar'
@@ -30,9 +28,7 @@ Vue.use(Quasar, {
       QChatMessage,
       QInput,
       QChip,
-      QSpinner,
-      QFooter,
-      QToolbar,
+      QSpinnerDots,
       QBtn
     },
     plugins: {

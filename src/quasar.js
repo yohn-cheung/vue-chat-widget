@@ -13,10 +13,9 @@ import {
     QChatMessage,
     QInput,
     QChip,
-    QSpinner,
-    QFooter,
-    QToolbar,
-    QBtn
+    QSpinnerDots,
+    QBtn,
+    LocalStorage
   } from 'quasar'
 
 import 'quasar/dist/quasar.min.css'
@@ -29,9 +28,10 @@ Vue.use(Quasar, {
       QChatMessage,
       QInput,
       QChip,
-      QSpinner,
-      QFooter,
-      QToolbar,
+      QSpinnerDots,
       QBtn
+    },
+    plugins: {
+      LocalStorage
     }
   })

@@ -5,5 +5,18 @@
 
 .conversation {
   height: 475px;
+  overflow: auto;
   background: rgb(234, 238, 243);
+}
+
+#chatWrapper {
+  max-height: 475px;
+}
+
+#spinner {
+  display: none;
+  /* position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, -50%) */
 }

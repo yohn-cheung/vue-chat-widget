@@ -9,6 +9,10 @@
   background: rgb(234, 238, 243);
 }
 
+#chatWrapper {
+  max-height: 475px;
+}
+
 #spinner {
   display: none;
   /* position: absolute;

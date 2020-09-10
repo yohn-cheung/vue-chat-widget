@@ -46,6 +46,18 @@ export default Vue.extend({
       }
     }    
   },
+  watch: {
+    chatConversation: function (val) {
+      if (Object.keys(val).length) {
+        this.scrollToBottom()
+      }
+    },
+    btnOptions: function (val){
+      if (Object.keys(val).length) {
+        this.scrollToBottom()
+      }
+    }
+  },
   methods: {
     toggleButtonChat() {
       const wrapper = document.getElementById('wrapper')
@@ -56,6 +68,13 @@ export default Vue.extend({
       } else {
         this.icon = 'close'
       }
+    },
+    scrollToBottom () {
+      const pageChat = this.$refs.pageChat
+      const conversation = document.querySelector('.conversation')
+      setTimeout(() => {
+        conversation.scrollTop = conversation.scrollHeight;
+      }, 20)
     },
     // getOptions(options, slotToElicit) {
     getOptions(options) {
@@ -196,13 +215,10 @@ export default Vue.extend({
     ])
 
     // chat wrapper for the chat-messages, options and the q-spinners dots
-    const chatWrapper = createElement('div', {
-      class: '',
-    }, [self.chatConversation, self.btnOptions, QSpinnerDots])
-
     const body = createElement('q-card-section', {
-      class: 'flex column conversation'
-    }, [chatWrapper])
+      attrs: {id: 'conversation'},
+      class: 'conversation',
+    }, [self.chatConversation, self.btnOptions, QSpinnerDots])
     
     const wrapper = createElement('q-card', { 
       class: 'my-card q-my-md',

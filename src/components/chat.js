@@ -198,7 +198,7 @@ export default Vue.extend({
         keyup: function(event){
           if(event.keyCode ===  13){
             self.sendUserMessage(self.chatInput)
-            document.getElementsByTagName('input').value = ''
+            document.querySelector('.q-field__native').value = ''
           }
         }
       }

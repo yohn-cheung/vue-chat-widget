@@ -20,3 +20,13 @@
   left: 50%;
   transform: translate(-50%, -50%) */
 }
+
+.footer {
+  background: #f9f9f9;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+a {
+  text-decoration: none;
+}

@@ -183,13 +183,46 @@ export default Vue.extend({
     var self = this
     self.createElement = createElement
 
-    // title of chat widget
-    const title = createElement('q-card-section', [createElement('div', {class: 'text-h6'}, this.title)])
+    const link = createElement('a', {
+      attrs: {
+        href: 'https://www.simac.com/en',
+        target: '_blank'
+      }
+    }, 'Simac')
+
+    const footerText = createElement('p','Powered by', [link])
+
+    const footer = createElement('q-card-section', {
+      class: 'footer q-py-sm text-center'
+    }, [footerText])
+
+    // icon for the message input
+    const sendIcon = createElement('q-btn', {
+      class: 'text-grey-4',
+      props: {
+        icon: 'send',
+        round: true,
+        dense: true,
+        flat: true
+      },
+      on: {
+        input: function (event) {
+          self.chatInput = event
+        },
+        click: function(event){
+          self.sendUserMessage(self.chatInput)
+          document.querySelector('.q-field__native').value = ''
+        }
+      }
+    })
   
     // Inputfield of the chat
     const qInput = createElement('q-input',  {
       props: {
         dense: true,
+      },
+      attrs: {
+        placeholder: 'Type your message here'
       },
       on: {
         input: function (event) {
@@ -202,8 +235,8 @@ export default Vue.extend({
           }
         }
       }
-    })
-    const footer = createElement('q-card-section', [qInput])
+    },[sendIcon])
+    const messageInput = createElement('q-card-section', {class: 'q-py-sm'}, [qInput])
 
     // q-spinners-dots
     const QSpinnerDots = createElement('div', { attrs: { id: 'spinner' }, class: "spinner-position"}, [
@@ -219,15 +252,31 @@ export default Vue.extend({
       attrs: {id: 'conversation'},
       class: 'conversation',
     }, [self.chatConversation, self.btnOptions, QSpinnerDots])
+
+    // header of the widget with avatar
+    const img = createElement('img', { 
+      attrs: {
+        src: 'https://tr1.cbsistatic.com/hub/i/r/2015/12/16/978e8dea-5c7d-4482-ab5f-016d7633951c/resize/770x/3117e58fdf7da32dac9d59d4f4364e22/artificial-intelligence-brain-ai.jpg'
+      }
+    })
+    const qAvatar = createElement('q-avatar', [img])
+    const qItemSectionAvatar = createElement('q-item-section', { props: { avatar: true }}, [qAvatar])
+    
+    //header of widhet with title(s)
+    const title = createElement('q-item-label', {class: 'text-h5'},'Chatbot')
+    const subTitle = createElement('q-item-label', {props: {caption: true}}, 'Online')
+    const qItemSectionText = createElement('q-item-section', [title, subTitle])
+    
+    //header
+    const header = createElement('q-item', {class: 'q-py-md'},[qItemSectionAvatar, qItemSectionText])
     
     const wrapper = createElement('q-card', { 
-      class: 'my-card q-my-md',
+      class: 'my-card q-my-md shadow-4',
+      style: {
+        borderRadius: '15px'
+      },
       attrs: {id: 'wrapper'},
-      props: {
-        flat: true,
-        bordered: true
-      }
-    }, [title, body, footer])
+    }, [header, body, messageInput, footer])
     
     // toggle button open/close chat
     const button = createElement('q-btn', {

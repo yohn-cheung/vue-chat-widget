@@ -12,6 +12,7 @@ module.exports = (env) => {
             filename: 'widget.js',
             path: path.resolve(bundleOutputDir),
         },
+        devtool: 'source-map',
         devServer: {
             contentBase: bundleOutputDir
         },

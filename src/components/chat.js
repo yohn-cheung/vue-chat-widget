@@ -23,7 +23,7 @@ export default Vue.extend({
       createElement: null
     }
   },
-  mounted(){
+  async mounted(){
     let conversation = LocalStorage.getItem('conversation')
     let options = LocalStorage.getItem('options')
 
@@ -44,7 +44,14 @@ export default Vue.extend({
       if(options) {
         this.getOptions(options)
       }
-    }    
+    }
+    if(!conversation){
+      const startConvo = 'hello'
+      const botResponse = await this.sendTolex(startConvo)
+      options = botResponse.responseCard.genericAttachments[0]
+      this.getOptions(options)
+      this.sendBotMessage(botResponse.message, botResponse.dialogState)
+    }
   },
   watch: {
     chatConversation: function (val) {
@@ -113,6 +120,7 @@ export default Vue.extend({
       await this.sendUserMessage(option)
     },
     async sendTolex(input) {
+      console.log('input: ', input);
       const response = await Interactions.send(
         'ScheduleAppointment_playground',
         input
@@ -124,12 +132,12 @@ export default Vue.extend({
 
       if (!newMessage) return
       const botResponse = await this.sendTolex(newMessage)
+      console.log('bot-response: ', botResponse)
       if (botResponse.responseCard) {
         options = botResponse.responseCard.genericAttachments[0]
       } else {
         LocalStorage.set('options', '')
       }
-      // this.getOptions(options, botResponse.slotToElicit)
       this.getOptions(options)
       this.sendBotMessage(botResponse.message, botResponse.dialogState)
 
@@ -192,6 +200,7 @@ export default Vue.extend({
         dense: true,
       },
       on: {
+        // TODO: search better way if possible.
         input: function (event) {
           self.chatInput = event
         },
@@ -217,7 +226,7 @@ export default Vue.extend({
     // chat wrapper for the chat-messages, options and the q-spinners dots
     const body = createElement('q-card-section', {
       attrs: {id: 'conversation'},
-      class: 'conversation',
+      class: 'conversation', // q-pa-md column col justify-end
     }, [self.chatConversation, self.btnOptions, QSpinnerDots])
     
     const wrapper = createElement('q-card', { 

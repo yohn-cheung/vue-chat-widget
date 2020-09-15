@@ -7,6 +7,7 @@ module.exports = (env) => {
     const isDevBuild = !(env && env.prod); 
 
     return [{
+        devtool: 'source-map',
         entry: './src/index.js',
         output: {
             filename: 'widget.js',
@@ -17,7 +18,11 @@ module.exports = (env) => {
         },
         plugins: isDevBuild
             ? [new webpack.SourceMapDevToolPlugin(), new copyWebpackPlugin({ patterns: [{ from: 'dev/'}]})]
-            : [new webpack.optimize.UglifyJsPlugin()],
+            : [],
+            optimization: {
+                minimize: !isDevBuild
+            },
+            mode: isDevBuild ? 'development' : 'production',
             module: {
                 rules: [
                     { test: /\.html$/i, use: 'html-loader' },

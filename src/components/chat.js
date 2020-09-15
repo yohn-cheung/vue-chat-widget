@@ -20,10 +20,13 @@ export default Vue.extend({
       chatConversation: [],
       btnOptions: [],
       storeConversation: [],
-      createElement: null
+      createElement: null,
+      company: 'Simac',
+      link: 'https://www.simac.com/en',
+      time: 300000
     }
   },
-  mounted(){
+  async mounted(){
     let conversation = LocalStorage.getItem('conversation')
     let options = LocalStorage.getItem('options')
 
@@ -34,7 +37,9 @@ export default Vue.extend({
             avatar: chat.avatar,
             text: chat.text,
             from: chat.from,
-            sent: chat.sent
+            sent: chat.sent,
+            bgColor: chat.bgColor,
+            textColor: chat.textColor
           }
         })
         this.chatConversation.push(chatMessage)
@@ -44,7 +49,18 @@ export default Vue.extend({
       if(options) {
         this.getOptions(options)
       }
-    }    
+    } 
+    
+    if(!conversation)
+    {
+      const startConvo = 'hello'
+      const botResponse = await this.sendTolex(startConvo)
+      options = botResponse.responseCard.genericAttachments[0]
+      this.getOptions(options)
+      this.sendBotMessage(botResponse.message, botResponse.dialogState)
+    }
+
+    this.checkTime()
   },
   watch: {
     chatConversation: function (val) {
@@ -76,6 +92,31 @@ export default Vue.extend({
         conversation.scrollTop = conversation.scrollHeight;
       }, 20)
     },
+    checkTime(){
+      setTimeout(() => {
+        // alert('after 3 secondes')
+        document.getElementById('message-input').style.display = 'none'
+        document.getElementById('start-chat-button').style.display = 'block'
+      }, this.time)
+    },
+    async initChat(){
+      
+      this.chatConversation = []
+      this.storeConversation = []
+      this.btnOptions = []
+
+      LocalStorage.set('options', '')
+      LocalStorage.set('conversation', this.storeConversation)
+
+      const startConvo = 'hello'
+      const botResponse = await this.sendTolex(startConvo)
+      const options = botResponse.responseCard.genericAttachments[0]
+      this.getOptions(options)
+      this.sendBotMessage(botResponse.message, botResponse.dialogState)
+
+      document.getElementById('message-input').style.display = 'block',
+      document.getElementById('start-chat-button').style.display = 'none'
+    },
     // getOptions(options, slotToElicit) {
     getOptions(options) {
       if (!options) {
@@ -87,7 +128,7 @@ export default Vue.extend({
       LocalStorage.set('options', options)
 
       options.buttons.forEach(option => {
-        const button = this.createElement('q-chip', { props: { outline: true }, class: "bg-teal text-white" }, [
+        const button = this.createElement('q-chip', { props: { outline: true }, class: "bg-white text-black" }, [
           this.createElement('q-btn', {
             props: {
               round: true,
@@ -124,6 +165,7 @@ export default Vue.extend({
 
       if (!newMessage) return
       const botResponse = await this.sendTolex(newMessage)
+      console.log('botResponse: ', botResponse)
       if (botResponse.responseCard) {
         options = botResponse.responseCard.genericAttachments[0]
       } else {
@@ -137,7 +179,9 @@ export default Vue.extend({
         avatar: 'https://cdn.quasar.dev/img/avatar4.jpg',
         text: [newMessage],
         from: 'me',
-        sent: true
+        sent: true,
+        bgColor: 'blue-grey-6',
+        textColor: 'white'
       }
 
       const chat = this.createElement('q-chat-message', {
@@ -156,7 +200,9 @@ export default Vue.extend({
         text: [message],
         from: 'bot',
         sent: false,
-        name: 'Bot Alice'
+        name: 'Bot Alice',
+        bgColor: 'red-9',
+        textColor: 'white'
       }
 
       setTimeout(() => {
@@ -176,6 +222,7 @@ export default Vue.extend({
         document.getElementById('spinner').style.display = 'none'
       }, 1500)
       this.btnOptions = []
+      this.checkTime()
     }
   },
   render(createElement) {
@@ -183,18 +230,12 @@ export default Vue.extend({
     var self = this
     self.createElement = createElement
 
-    const link = createElement('a', {
-      attrs: {
-        href: 'https://www.simac.com/en',
-        target: '_blank'
-      }
-    }, 'Simac')
-
-    const footerText = createElement('p','Powered by', [link])
-
     const footer = createElement('q-card-section', {
-      class: 'footer q-py-sm text-center'
-    }, [footerText])
+      class: 'footer q-py-sm text-center',
+      domProps: {
+        innerHTML: "Powered by <a href='"+this.link+"' target='_blank'>"+this.company+"</a>"  
+      }
+    })
 
     // icon for the message input
     const sendIcon = createElement('q-btn', {
@@ -220,6 +261,7 @@ export default Vue.extend({
     const qInput = createElement('q-input',  {
       props: {
         dense: true,
+        borderless: true
       },
       attrs: {
         placeholder: 'Type your message here'
@@ -236,7 +278,18 @@ export default Vue.extend({
         }
       }
     },[sendIcon])
-    const messageInput = createElement('q-card-section', {class: 'q-py-sm'}, [qInput])
+    const messageInput = createElement('q-card-section', {attrs: {id: 'message-input'} ,class: 'q-py-sm'}, [qInput])
+
+    //start chat again button if the 5 minutes are passed
+    const startChatButton = createElement('q-btn',{
+      attrs: {
+        id: 'start-chat-button'
+      },
+      class: 'full-width no-box-shadow no-border-radius',
+      on: {
+        click: this.initChat
+      }
+    }, 'Start chat again')
 
     // q-spinners-dots
     const QSpinnerDots = createElement('div', { attrs: { id: 'spinner' }, class: "spinner-position"}, [
@@ -250,7 +303,7 @@ export default Vue.extend({
     // chat wrapper for the chat-messages, options and the q-spinners dots
     const body = createElement('q-card-section', {
       attrs: {id: 'conversation'},
-      class: 'conversation',
+      class: 'conversation', //inset-shadow	
     }, [self.chatConversation, self.btnOptions, QSpinnerDots])
 
     // header of the widget with avatar
@@ -276,7 +329,7 @@ export default Vue.extend({
         borderRadius: '15px'
       },
       attrs: {id: 'wrapper'},
-    }, [header, body, messageInput, footer])
+    }, [header, body, messageInput, startChatButton, footer])
     
     // toggle button open/close chat
     const button = createElement('q-btn', {

@@ -5,13 +5,6 @@ import Vue from 'vue'
 import Chat from './components/chat.js'
 import './quasar.js'
 
-// import Amplify, { Interactions } from 'aws-amplify';
-// import awsconfig from './aws-exports';
-
-// Amplify.configure(awsconfig);
-// Vue.prototype.$Interactions = Interactions
-
-
 const DEFAULT_NAME = '_hw';
 const scriptElement = window.document.currentScript
 const win = window

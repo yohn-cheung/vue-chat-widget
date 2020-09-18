@@ -20,13 +20,14 @@ export default Vue.extend({
       btnOptions: [],
       storeConversation: [],
       createElement: null,
-      company: 'Simac',
-      link: 'https://www.simac.com/en',
+      company: 'Simac Triangle',
+      link: 'https://www.simac.com/nl',
 			time: 300000,
 			wrapper: null,
       button: null,
       chatBotWidth: '370px',
-      chatBotHeight: '730px'
+      chatBotHeight: '730px',
+      disable: false
     }
 	},
 	async mounted(){
@@ -109,12 +110,22 @@ export default Vue.extend({
 				background: rgb(234, 238, 243);
       }
 
+      .q-message-text-content div > p > a {
+        color: #ffffff;
+        font-weight: bold;
+      }
+
       #spinner {
         display: none;
       }
 
       #start-chat-button {
         display: none;
+      }
+
+      #message-input {
+        border-top: 1px solid rgb(238, 238, 238);
+        border-bottom: 1px solid rgb(238, 238, 238);
       }
 
       .footer {
@@ -140,8 +151,6 @@ export default Vue.extend({
       chatApp.$mount(el) // mount into iframe
     },
     toggleButtonChat() {
-      console.log('toggleButtonChat')
-
       const chatbot = document.getElementById('chatbot-chat')
 
       const iframe = document.getElementById('chatbot-iframe')
@@ -161,9 +170,14 @@ export default Vue.extend({
     scrollToBottom () {
       const iframe = document.getElementById('chatbot-iframe')
       const conversation = iframe.contentWindow.document.querySelector('.conversation')
-      setTimeout(() => {
-        conversation.scrollTop = conversation.scrollHeight;
-      }, 20)
+
+      let conversationStorage = LocalStorage.getItem('conversation')
+
+      if(conversationStorage.length > 1){
+        setTimeout(() => {
+          conversation.scrollTop = conversation.scrollHeight;
+        }, 20)
+      }      
     },
 		checkTime(){
 			
@@ -173,9 +187,7 @@ export default Vue.extend({
 				iframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
       }, this.time)
     },
-    async initChat() {
-			console.log('resetChat')
-			
+    async initChat() {			
 			this.chatConversation = []
       this.storeConversation = []
       this.btnOptions = []
@@ -223,6 +235,7 @@ export default Vue.extend({
 
       setTimeout(() => {
         this.btnOptions.push(div)
+        this.disable = true
       }, 1800)
     },
 		async sendOption (option) {
@@ -230,7 +243,7 @@ export default Vue.extend({
     },
     async sendTolex(input) {
       const response = await Interactions.send(
-        'ScheduleAppointment_playground',
+        'contactformwidget_playground',
         input
       )
       return response 
@@ -242,8 +255,17 @@ export default Vue.extend({
 			let options = ''
 
       if (!newMessage) return
+      let inputMessage = null
+
+      if (newMessage === 'yes') {
+        inputMessage = 'Ja'
+      } else if (newMessage === 'no') {
+        inputMessage = 'Nee'
+      } else {
+        inputMessage = newMessage
+      }
+
       const botResponse = await this.sendTolex(newMessage)
-      console.log('botResponse: ', botResponse)
       if (botResponse.responseCard) {
         options = botResponse.responseCard.genericAttachments[0]
       } else {
@@ -254,8 +276,8 @@ export default Vue.extend({
       this.sendBotMessage(botResponse.message, botResponse.dialogState)
 
       let data = {
-        avatar: 'https://cdn.quasar.dev/img/avatar4.jpg',
-        text: [newMessage],
+        avatar: 'https://static.vecteezy.com/system/resources/thumbnails/000/550/731/small/user_icon_004.jpg',
+        text: [inputMessage],
         from: 'me',
         sent: true,
         bgColor: 'blue-grey-6',
@@ -275,7 +297,7 @@ export default Vue.extend({
 			iframe.contentWindow.document.getElementById('spinner').style.display = 'block'
 
       let data = {
-        avatar: 'https://tr1.cbsistatic.com/hub/i/r/2015/12/16/978e8dea-5c7d-4482-ab5f-016d7633951c/resize/770x/3117e58fdf7da32dac9d59d4f4364e22/artificial-intelligence-brain-ai.jpg',
+        avatar: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif',
         text: [message],
         from: 'bot',
         sent: false,
@@ -291,8 +313,12 @@ export default Vue.extend({
         this.chatConversation.push(chat)
 
         if(state === 'Fulfilled'){
-          console.log('Fulfilled')
           this.storeConversation = []
+
+          const iframe = document.getElementById('chatbot-iframe')
+          iframe.contentWindow.document.getElementById('message-input').style.display = 'none'
+          iframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
+        
         } else {
           this.storeConversation.push(data)
         }
@@ -301,6 +327,7 @@ export default Vue.extend({
         iframe.contentWindow.document.getElementById('spinner').style.display = 'none'
       }, 1500)
       this.btnOptions = []
+      this.disable = false
       this.checkTime()
     }
   },
@@ -313,7 +340,7 @@ export default Vue.extend({
 		const footer = createElement('q-card-section', {
       class: 'footer q-py-sm text-center',
       domProps: {
-        innerHTML: "Powered by <a href='"+this.link+"' target='_blank'>"+this.company+"</a>"  
+        innerHTML: "Gesponsord door <a href='"+this.link+"' target='_blank'>"+this.company+"</a>"  
       }
     })
 
@@ -322,11 +349,11 @@ export default Vue.extend({
       attrs: {
         id: 'start-chat-button'
       },
-      class: 'full-width no-box-shadow no-border-radius',
+      class: 'q-py-sm full-width no-box-shadow no-border-radius',
       on: {
         click: this.initChat
       }
-    }, 'Start chat again')
+    }, 'Begin opnieuw met chat')
 
 		// icon for the message input
     const sendIcon = createElement('q-btn', {
@@ -342,7 +369,6 @@ export default Vue.extend({
           self.chatInput = event
         },
         click: function(event){
-					console.log('icon pressed: ', self.chatInput)
           self.sendUserMessage(self.chatInput)
         }
       }
@@ -352,7 +378,8 @@ export default Vue.extend({
     const qInput = createElement('q-input',  {
       props: {
         dense: true,
-        borderless: true
+        borderless: true,
+        disable: self.disable
       },
       attrs: {
         placeholder: 'Type jouw bericht in'
@@ -363,7 +390,6 @@ export default Vue.extend({
         },
         keyup: function(event){
           if(event.keyCode ===  13){
-						console.log('enter: ', self.chatInput)
             self.sendUserMessage(self.chatInput)
           }
         }
@@ -384,13 +410,13 @@ export default Vue.extend({
 		// chat wrapper for the chat-messages, options and the q-spinners dots
 		const body = createElement('q-card-section', {
 			attrs: {id: 'conversation'},
-			class: 'conversation', //inset-shadow	
+			class: 'conversation inset-shadow',
 		}, [self.chatConversation, self.btnOptions, QSpinnerDots])
 
 		// header of the widget with avatar
     const img = createElement('img', { 
       attrs: {
-        src: 'https://tr1.cbsistatic.com/hub/i/r/2015/12/16/978e8dea-5c7d-4482-ab5f-016d7633951c/resize/770x/3117e58fdf7da32dac9d59d4f4364e22/artificial-intelligence-brain-ai.jpg'
+        src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif'
       }
     })
     const qAvatar = createElement('q-avatar', [img])
@@ -405,7 +431,7 @@ export default Vue.extend({
     const header = createElement('q-item', {class: 'q-py-md'},[qItemSectionAvatar, qItemSectionText])
 
 		self.wrapper = createElement('q-card', { 
-      class: 'q-ma-md shadow-4',
+      class: 'q-ma-md shadow-6',
       style: {
         borderRadius: '15px'
       },

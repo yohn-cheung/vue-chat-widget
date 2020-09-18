@@ -224,6 +224,7 @@ export default Vue.extend({
             on: {
               click: function(event) {
                 self.sendOption(option.value)
+                self.btnOptions = []
               }
             }
           }, option.text)])
@@ -265,16 +266,6 @@ export default Vue.extend({
         inputMessage = newMessage
       }
 
-      const botResponse = await this.sendTolex(newMessage)
-      if (botResponse.responseCard) {
-        options = botResponse.responseCard.genericAttachments[0]
-      } else {
-        LocalStorage.set('options', '')
-			}
-			
-      this.getOptions(options)
-      this.sendBotMessage(botResponse.message, botResponse.dialogState)
-
       let data = {
         avatar: 'https://static.vecteezy.com/system/resources/thumbnails/000/550/731/small/user_icon_004.jpg',
         text: [inputMessage],
@@ -291,42 +282,60 @@ export default Vue.extend({
 			
 			this.storeConversation.push(data)
       LocalStorage.set('conversation', this.storeConversation)
+
+			iframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+
+      const botResponse = await this.sendTolex(newMessage)
+      if (botResponse.responseCard) {
+        options = botResponse.responseCard.genericAttachments[0]
+      } else {
+        LocalStorage.set('options', '')
+			}
+			
+      this.getOptions(options)
+      this.sendBotMessage(botResponse.message, botResponse.dialogState)
 		},
 		sendBotMessage (message, state) {
 			const iframe = document.getElementById('chatbot-iframe')			
-			iframe.contentWindow.document.getElementById('spinner').style.display = 'block'
-
-      let data = {
-        avatar: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif',
-        text: [message],
-        from: 'bot',
-        sent: false,
-        name: 'Bot Alice',
-        bgColor: 'red-9',
-        textColor: 'white'
-      }
-
+      iframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+      
       setTimeout(() => {
+        let data = {
+          avatar: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif',
+          text: [message],
+          from: 'bot',
+          sent: false,
+          name: 'Bot Alice',
+          bgColor: 'red-9',
+          textColor: 'white'
+        }
+
         const chat = this.createElement('q-chat-message', {
-          props: data
+          props: {
+            avatar: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif',
+            text: [message],
+            from: 'bot',
+            sent: false,
+            name: 'Bot Alice',
+            bgColor: 'red-9',
+            textColor: 'white'
+          }
         })
         this.chatConversation.push(chat)
+        iframe.contentWindow.document.getElementById('spinner').style.display = 'none'
 
         if(state === 'Fulfilled'){
           this.storeConversation = []
 
-          const iframe = document.getElementById('chatbot-iframe')
+          // const iframe = document.getElementById('chatbot-iframe')
           iframe.contentWindow.document.getElementById('message-input').style.display = 'none'
           iframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
         
         } else {
           this.storeConversation.push(data)
-        }
-
-        LocalStorage.set('conversation', this.storeConversation)
-        iframe.contentWindow.document.getElementById('spinner').style.display = 'none'
+          LocalStorage.set('conversation', this.storeConversation)
+        }        
       }, 1500)
-      this.btnOptions = []
       this.disable = false
       this.checkTime()
     }

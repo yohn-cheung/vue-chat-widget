@@ -7,8 +7,7 @@ npm install
 
 ## Add this widget code snippet in index.html of dev folder 
 ```
-    <script>
-        //with React version of the article 
+    <script> 
         (function (w, d, s, o, f, js, fjs) {
             w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
             js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
@@ -31,8 +30,7 @@ npm run build
 - Pay attention to the index.html (of the dist folder) for the widget code snippet. You may need to add the url of your website for the widget.js
 
 ```bash
-    <script>
-        //with React version of the article 
+    <script> 
         (function (w, d, s, o, f, js, fjs) {
             w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
             js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
@@ -41,4 +39,10 @@ npm run build
         _hw('init', { tenant: {name: 'de schoor', id: 1}, text: {title: 'De Schoor Chat' }});
     </script>
 ```
+
+## Articles
+
+- https://blog.jenyay.com/building-javascript-widget/
+- https://blog.jenyay.com/web-ui-widget/
+
 

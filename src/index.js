@@ -5,13 +5,6 @@ import Vue from 'vue'
 import Chat from './components/chat.js'
 import './quasar.js'
 
-// import Amplify, { Interactions } from 'aws-amplify';
-// import awsconfig from './aws-exports';
-
-// Amplify.configure(awsconfig);
-// Vue.prototype.$Interactions = Interactions
-
-
 const DEFAULT_NAME = '_hw';
 const scriptElement = window.document.currentScript
 const win = window
@@ -90,8 +83,6 @@ for (let i = 0; i < loaderObject.q.length; i++) {
             console.warn(`Unsupported method [${methodName}]`, item[1]);
     }
 }
-
-// console.log('widgetID outside of the function: ', widgetID)
 
 new Vue({
     el: widgetID,

@@ -7,6 +7,7 @@ module.exports = (env) => {
     const isDevBuild = !(env && env.prod); 
 
     return [{
+        devtool: 'source-map',
         entry: './src/index.js',
         output: {
             filename: 'widget.js',
@@ -18,7 +19,11 @@ module.exports = (env) => {
         },
         plugins: isDevBuild
             ? [new webpack.SourceMapDevToolPlugin(), new copyWebpackPlugin({ patterns: [{ from: 'dev/'}]})]
-            : [new webpack.optimize.UglifyJsPlugin()],
+            : [],
+            optimization: {
+                minimize: !isDevBuild
+            },
+            mode: isDevBuild ? 'development' : 'production',
             module: {
                 rules: [
                     { test: /\.html$/i, use: 'html-loader' },
@@ -35,14 +40,13 @@ module.exports = (env) => {
                             }
                         }
                     },
-                    { test: /\.s[ac]ss$/i, use: [
-                      	// Creates `style` nodes from JS strings
-                        'style-loader',
-                        // Translates CSS into CommonJS
-                        'css-loader',
-                        // Compiles Sass to CSS
-                        'sass-loader',
-                      ]
+                    { test: /\.s[ac]ss$/i, 
+											use: [
+                                                'style-loader',
+                                                'css-loader',
+                                                'sass-loader'
+											]
+							
 					},
 				    {test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg)$/,loader: 'file-loader?limit=100000'}
                 ]

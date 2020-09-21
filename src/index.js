@@ -84,8 +84,6 @@ for (let i = 0; i < loaderObject.q.length; i++) {
     }
 }
 
-// console.log('widgetID outside of the function: ', widgetID)
-
 new Vue({
     el: widgetID,
     props: ['config'], 

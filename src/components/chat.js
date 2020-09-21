@@ -14,7 +14,7 @@ export default Vue.extend({
   data() {
     return {
       title: this.config.text.title,
-      icon: 'close',
+      icon: 'chat',
       chatInput: '',
       chatConversation: [],
       btnOptions: [],
@@ -31,6 +31,11 @@ export default Vue.extend({
     }
 	},
 	async mounted(){
+    const chatbot = document.getElementById('chatbot-chat')
+
+    chatbot.style.width = '100px'
+    chatbot.style.height = '100px'
+
     let conversation = LocalStorage.getItem('conversation')
     let options = LocalStorage.getItem('options')
 
@@ -102,7 +107,11 @@ export default Vue.extend({
 
 			.simac-chat {
 				overflow: hidden;
-			}
+      }
+      
+      #wrapper {
+        display: none
+      }
 
       .conversation {
         height: 475px;
@@ -155,16 +164,16 @@ export default Vue.extend({
 
       const iframe = document.getElementById('chatbot-iframe')
       const wrapper = iframe.contentWindow.document.getElementById('wrapper')
-      wrapper.style.display = wrapper.style.display === 'none' ? '' : 'none';
+      wrapper.style.display = wrapper.style.display === 'block' ? '' : 'block';
       
-      if(wrapper.style.display === 'none' ){
-        this.icon = 'chat'
-        chatbot.style.width = '100px'
-        chatbot.style.height = '100px'
-      } else {
+      if(wrapper.style.display === 'block' ){
         this.icon = 'close'
         chatbot.style.width = this.chatBotWidth
         chatbot.style.height = this.chatBotHeight
+      } else {
+        this.icon = 'chat'
+        chatbot.style.width = '100px'
+        chatbot.style.height = '100px'
       }
     },
     scrollToBottom () {
@@ -250,9 +259,7 @@ export default Vue.extend({
       return response 
     },
     async sendUserMessage(newMessage) {
-      const iframe = document.getElementById('chatbot-iframe')
-			iframe.contentWindow.document.querySelector('.q-field__native').value = ''
-			
+      this.chatInput = ''			
 			let options = ''
 
       if (!newMessage) return
@@ -282,7 +289,8 @@ export default Vue.extend({
 			
 			this.storeConversation.push(data)
       LocalStorage.set('conversation', this.storeConversation)
-
+      
+      const iframe = document.getElementById('chatbot-iframe')
 			iframe.contentWindow.document.getElementById('spinner').style.display = 'block'
 
       const botResponse = await this.sendTolex(newMessage)
@@ -349,7 +357,7 @@ export default Vue.extend({
 		const footer = createElement('q-card-section', {
       class: 'footer q-py-sm text-center',
       domProps: {
-        innerHTML: "Gesponsord door <a href='"+this.link+"' target='_blank'>"+this.company+"</a>"  
+        innerHTML: "Powered by <a href='"+this.link+"' target='_blank'>"+this.company+"</a>"  
       }
     })
 

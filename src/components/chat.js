@@ -27,14 +27,21 @@ export default Vue.extend({
       button: null,
       chatBotWidth: '370px',
       chatBotHeight: '730px',
+      chatBotChat: null,
+      chatBotIframe: null,
       disable: false
     }
 	},
 	async mounted(){
-    const chatbot = document.getElementById('chatbot-chat')
+    if (this.$q.platform.is.mobile){
+      console.log('is mobile')
+    }
 
-    chatbot.style.width = '100px'
-    chatbot.style.height = '100px'
+    this.chatBotChat = document.getElementById('chatbot-chat')
+    this.chatBotChat.style.width = '100px'
+    this.chatBotChat.style.height = '100px'
+
+    this.chatBotIframe = document.getElementById('chatbot-iframe')
 
     let conversation = LocalStorage.getItem('conversation')
     let options = LocalStorage.getItem('options')
@@ -87,7 +94,7 @@ export default Vue.extend({
     renderChildren() {
 			const self = this
 			
-			const iframe = document.getElementById('chatbot-iframe')
+      const iframe = document.getElementById('chatbot-iframe')
       const body = iframe.contentDocument.body
       const el = document.createElement('div') // we will mount or nested app to this element
       body.appendChild(el)
@@ -160,26 +167,21 @@ export default Vue.extend({
       chatApp.$mount(el) // mount into iframe
     },
     toggleButtonChat() {
-      const chatbot = document.getElementById('chatbot-chat')
-
-      const iframe = document.getElementById('chatbot-iframe')
-      const wrapper = iframe.contentWindow.document.getElementById('wrapper')
+      const wrapper = this.chatBotIframe.contentWindow.document.getElementById('wrapper')
       wrapper.style.display = wrapper.style.display === 'block' ? '' : 'block';
       
       if(wrapper.style.display === 'block' ){
         this.icon = 'close'
-        chatbot.style.width = this.chatBotWidth
-        chatbot.style.height = this.chatBotHeight
+        this.chatBotChat.style.width = this.chatBotWidth
+        this.chatBotChat.style.height = this.chatBotHeight
       } else {
         this.icon = 'chat'
-        chatbot.style.width = '100px'
-        chatbot.style.height = '100px'
+        this.chatBotChat.style.width = '100px'
+        this.chatBotChat.style.height = '100px'
       }
     },
     scrollToBottom () {
-      const iframe = document.getElementById('chatbot-iframe')
-      const conversation = iframe.contentWindow.document.querySelector('.conversation')
-
+      const conversation = this.chatBotIframe.contentWindow.document.querySelector('.conversation')
       let conversationStorage = LocalStorage.getItem('conversation')
 
       if(conversationStorage.length > 1){
@@ -191,9 +193,8 @@ export default Vue.extend({
 		checkTime(){
 			
       setTimeout(() => {
-				const iframe = document.getElementById('chatbot-iframe')
-				iframe.contentWindow.document.getElementById('message-input').style.display = 'none'
-				iframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
+				this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
+				this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
       }, this.time)
     },
     async initChat() {			
@@ -210,9 +211,8 @@ export default Vue.extend({
       this.getOptions(options)
 			this.sendBotMessage(botResponse.message, botResponse.dialogState)
 						
-			const iframe = document.getElementById('chatbot-iframe')
-			iframe.contentWindow.document.getElementById('message-input').style.display = 'block'
-			iframe.contentWindow.document.getElementById('start-chat-button').style.display = 'none'
+			this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'block'
+			this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'none'
 		},
 		getOptions(options) {
       if (!options) {
@@ -290,8 +290,7 @@ export default Vue.extend({
 			this.storeConversation.push(data)
       LocalStorage.set('conversation', this.storeConversation)
       
-      const iframe = document.getElementById('chatbot-iframe')
-			iframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+			this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
 
       const botResponse = await this.sendTolex(newMessage)
       if (botResponse.responseCard) {
@@ -303,9 +302,8 @@ export default Vue.extend({
       this.getOptions(options)
       this.sendBotMessage(botResponse.message, botResponse.dialogState)
 		},
-		sendBotMessage (message, state) {
-			const iframe = document.getElementById('chatbot-iframe')			
-      iframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+		sendBotMessage (message, state) {	
+      this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
       
       setTimeout(() => {
         let data = {
@@ -330,14 +328,13 @@ export default Vue.extend({
           }
         })
         this.chatConversation.push(chat)
-        iframe.contentWindow.document.getElementById('spinner').style.display = 'none'
+        this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
 
         if(state === 'Fulfilled'){
           this.storeConversation = []
 
-          // const iframe = document.getElementById('chatbot-iframe')
-          iframe.contentWindow.document.getElementById('message-input').style.display = 'none'
-          iframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
+          this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
+          this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
         
         } else {
           this.storeConversation.push(data)

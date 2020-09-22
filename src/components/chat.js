@@ -31,12 +31,8 @@ export default Vue.extend({
       chatBotIframe: null,
       disable: false
     }
-	},
+  },
 	async mounted(){
-    if (this.$q.platform.is.mobile){
-      console.log('is mobile')
-    }
-
     this.chatBotChat = document.getElementById('chatbot-chat')
     this.chatBotChat.style.width = '100px'
     this.chatBotChat.style.height = '100px'
@@ -75,7 +71,6 @@ export default Vue.extend({
       this.getOptions(options)
       this.sendBotMessage(botResponse.message, botResponse.dialogState)
     }
-
     this.checkTime()
   },
   watch: {
@@ -169,6 +164,13 @@ export default Vue.extend({
     toggleButtonChat() {
       const wrapper = this.chatBotIframe.contentWindow.document.getElementById('wrapper')
       wrapper.style.display = wrapper.style.display === 'block' ? '' : 'block';
+
+      if (this.$q.platform.is.mobile && !this.$q.platform.is.ipad){
+        const conversation = this.chatBotIframe.contentWindow.document.querySelector('.conversation')
+        this.chatBotWidth = '100%',
+        this.chatBotHeight = '100%',
+        conversation.style.height = '65%'
+      }
       
       if(wrapper.style.display === 'block' ){
         this.icon = 'close'

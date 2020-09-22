@@ -19,7 +19,8 @@ import {
     QItem,
     QItemSection,
     QItemLabel,
-    LocalStorage
+    LocalStorage,
+    Platform
   } from 'quasar'
 
 
@@ -39,6 +40,7 @@ Vue.use(Quasar, {
       QItemLabel,
     },
     plugins: {
-      LocalStorage
+      LocalStorage,
+      Platform
     }
   })

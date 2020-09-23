@@ -21,7 +21,7 @@ export default Vue.extend({
       createElement: null,
       company: 'Simac Triangle',
       link: 'https://www.simac.com/nl',
-			time: 300000, // 300.000
+			time: 300000,
 			wrapper: null,
       button: null,
       chatBotWidth: '370px',
@@ -203,8 +203,11 @@ export default Vue.extend({
           
         const startConvo = 'hello'
         const botResponse = await this.sendTolex(startConvo)
-        let options = botResponse.responseCard.genericAttachments[0]
-        this.getOptions(options)
+
+        if (botResponse.responseCard) {
+          options = botResponse.responseCard.genericAttachments[0]
+          this.getOptions(options)
+        }
         this.sendBotMessage(botResponse.message, botResponse.dialogState)
         this.checkTime()
       }
@@ -249,7 +252,6 @@ export default Vue.extend({
             }, 
             on: {
               click: function(event) {
-                console.log('in the click event: ', self.disableQChip)
                 if(!self.disableQChip) {
                   self.sendOption(option.value)
                   self.btnOptions = []

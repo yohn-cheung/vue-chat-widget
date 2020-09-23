@@ -62,6 +62,7 @@ export default Vue.extend({
         this.getOptions(options)
       }
       this.checkTime()
+      this.buttonAvatar()
     }
   },
   watch: {
@@ -156,6 +157,37 @@ export default Vue.extend({
 
       chatApp.$mount(el) // mount into iframe
     },
+    buttonAvatar() {
+      // toggle button open/close chat
+      const img = this.createElement('img', { 
+        attrs: {
+          src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif'
+        }
+      })
+      
+      const qAvatar = this.createElement('q-avatar', {props: { size: "42px" } },[img])
+      this.button = this.createElement('q-btn', {
+        props: {
+          round: true
+        },
+        class: 'bg-white fixed-bottom-right q-ma-md',
+        on: {
+          click: this.toggleButtonChat
+        }
+      }, [qAvatar])
+    },
+    buttonClose(){
+      this.button = this.createElement('q-btn', {
+        props: {
+          round: true,
+          icon: 'close'
+        },
+        class: 'bg-white fixed-bottom-right q-ma-md',
+        on: {
+          click: this.toggleButtonChat
+        }
+      })
+    },
     toggleButtonChat() {
       const wrapper = this.chatBotIframe.contentWindow.document.getElementById('wrapper')
       wrapper.style.display = wrapper.style.display === 'block' ? '' : 'block';
@@ -171,9 +203,11 @@ export default Vue.extend({
         this.chatBotChat.style.width = this.chatBotWidth
         this.chatBotChat.style.height = this.chatBotHeight
         this.initChat()
+        this.buttonClose()
       } else {
         this.chatBotChat.style.width = '100px'
         this.chatBotChat.style.height = '100px'
+        this.buttonAvatar()
       }
     },
     scrollToBottom () {
@@ -360,7 +394,6 @@ export default Vue.extend({
     }
   },
   render(createElement) {
-
     var self = this
 		self.createElement = createElement
 
@@ -462,24 +495,6 @@ export default Vue.extend({
       attrs: {id: 'wrapper'},
 		}, [header, body, messageInput, startChatButton, footer])
 		
-    // toggle button open/close chat
-    const img = createElement('img', { 
-      attrs: {
-        src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif'
-      }
-    })
-    const qAvatar = createElement('q-avatar', [img])
-
-    self.button = createElement('q-btn', {
-      props: {
-        round: true
-      },
-      class: 'bg-white fixed-bottom-right q-ma-md',
-      on: {
-        click: this.toggleButtonChat
-      }
-    }, [qAvatar])
-    
     const iframe = createElement('iframe', {
       attrs: {
         id: 'chatbot-iframe',

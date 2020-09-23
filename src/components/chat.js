@@ -14,7 +14,6 @@ export default Vue.extend({
   data() {
     return {
       title: this.config.text.title,
-      icon: 'chat',
       chatInput: '',
       chatConversation: [],
       btnOptions: [],
@@ -121,6 +120,10 @@ export default Vue.extend({
 				background: rgb(234, 238, 243);
       }
 
+      .q-message-avatar {
+        background: #ffffff;
+      }
+
       .q-message-text-content div > p > a {
         color: #ffffff;
         font-weight: bold;
@@ -173,11 +176,9 @@ export default Vue.extend({
       }
       
       if(wrapper.style.display === 'block' ){
-        this.icon = 'close'
         this.chatBotChat.style.width = this.chatBotWidth
         this.chatBotChat.style.height = this.chatBotHeight
       } else {
-        this.icon = 'chat'
         this.chatBotChat.style.width = '100px'
         this.chatBotChat.style.height = '100px'
       }
@@ -309,7 +310,7 @@ export default Vue.extend({
       
       setTimeout(() => {
         let data = {
-          avatar: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif',
+          avatar: 'https://www.simac.com/bundles/lamecowebsite/img/simac-logo.png',
           text: [message],
           from: 'bot',
           sent: false,
@@ -319,15 +320,7 @@ export default Vue.extend({
         }
 
         const chat = this.createElement('q-chat-message', {
-          props: {
-            avatar: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif',
-            text: [message],
-            from: 'bot',
-            sent: false,
-            name: 'Bot Alice',
-            bgColor: 'red-9',
-            textColor: 'white'
-          }
+          props: data
         })
         this.chatConversation.push(chat)
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
@@ -430,13 +423,9 @@ export default Vue.extend({
 		}, [self.chatConversation, self.btnOptions, QSpinnerDots])
 
 		// header of the widget with avatar
-    const img = createElement('img', { 
-      attrs: {
-        src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif'
-      }
-    })
-    const qAvatar = createElement('q-avatar', [img])
-    const qItemSectionAvatar = createElement('q-item-section', { props: { avatar: true }}, [qAvatar])
+    const imgHeader = createElement('img', { attrs: { src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif' }})
+    const qAvatarHeader = createElement('q-avatar', [imgHeader])
+    const qItemSectionAvatar = createElement('q-item-section', { props: { avatar: true }}, [qAvatarHeader])
     
     //header of widhet with title(s)
     const title = createElement('q-item-label', {class: 'text-h5'},'Chatbot')
@@ -454,18 +443,23 @@ export default Vue.extend({
       attrs: {id: 'wrapper'},
 		}, [header, body, messageInput, startChatButton, footer])
 		
-		// toggle button open/close chat
+    // toggle button open/close chat
+    const img = createElement('img', { 
+      attrs: {
+        src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif'
+      }
+    })
+    const qAvatar = createElement('q-avatar', [img])
+
     self.button = createElement('q-btn', {
-      class: 'bg-white fixed-bottom-right q-ma-md',
       props: {
-        icon: this.icon,
-        round: true,
-        size: 'md'
+        round: true
       },
+      class: 'bg-white fixed-bottom-right q-ma-md',
       on: {
         click: this.toggleButtonChat
       }
-    })
+    }, [qAvatar])
     
     const iframe = createElement('iframe', {
       attrs: {

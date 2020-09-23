@@ -205,7 +205,7 @@ export default Vue.extend({
         const botResponse = await this.sendTolex(startConvo)
 
         if (botResponse.responseCard) {
-          options = botResponse.responseCard.genericAttachments[0]
+          let options = botResponse.responseCard.genericAttachments[0]
           this.getOptions(options)
         }
         this.sendBotMessage(botResponse.message, botResponse.dialogState)

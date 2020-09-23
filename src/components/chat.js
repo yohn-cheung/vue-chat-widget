@@ -28,7 +28,8 @@ export default Vue.extend({
       chatBotHeight: '730px',
       chatBotChat: null,
       chatBotIframe: null,
-      disable: false
+      disableQInput: false,
+      disableQChip: false
     }
   },
 	async mounted(){
@@ -60,17 +61,8 @@ export default Vue.extend({
       if(options) {
         this.getOptions(options)
       }
-    } 
-    
-    if(!conversation || conversation.length === 0)
-    {
-      const startConvo = 'hello'
-      const botResponse = await this.sendTolex(startConvo)
-      options = botResponse.responseCard.genericAttachments[0]
-      this.getOptions(options)
-      this.sendBotMessage(botResponse.message, botResponse.dialogState)
+      this.checkTime()
     }
-    this.checkTime()
   },
   watch: {
     chatConversation: function (val) {
@@ -178,6 +170,7 @@ export default Vue.extend({
       if(wrapper.style.display === 'block' ){
         this.chatBotChat.style.width = this.chatBotWidth
         this.chatBotChat.style.height = this.chatBotHeight
+        this.initChat()
       } else {
         this.chatBotChat.style.width = '100px'
         this.chatBotChat.style.height = '100px'
@@ -196,11 +189,30 @@ export default Vue.extend({
 		checkTime(){
 			
       setTimeout(() => {
+        this.disableQChip = true
 				this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
-				this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
+        this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
+        this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.add('disabled')
       }, this.time)
     },
-    async initChat() {			
+    async initChat(){
+      let conversation = LocalStorage.getItem('conversation')
+      if(!conversation || conversation.length === 0)
+      {
+        this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+          
+        const startConvo = 'hello'
+        const botResponse = await this.sendTolex(startConvo)
+
+        if (botResponse.responseCard) {
+          options = botResponse.responseCard.genericAttachments[0]
+          this.getOptions(options)
+        }
+        this.sendBotMessage(botResponse.message, botResponse.dialogState)
+        this.checkTime()
+      }
+    },
+    async resetChat() {			
 			this.chatConversation = []
       this.storeConversation = []
       this.btnOptions = []
@@ -212,10 +224,15 @@ export default Vue.extend({
       const botResponse = await this.sendTolex(startConvo)
       const options = botResponse.responseCard.genericAttachments[0]
       this.getOptions(options)
-			this.sendBotMessage(botResponse.message, botResponse.dialogState)
+      this.sendBotMessage(botResponse.message, botResponse.dialogState)
+      
+      this.disableQChip = false
 						
 			this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'block'
-			this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'none'
+      this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'none'
+      this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.remove('disabled')
+
+      this.checkTime()
 		},
 		getOptions(options) {
       if (!options) {
@@ -235,8 +252,10 @@ export default Vue.extend({
             }, 
             on: {
               click: function(event) {
-                self.sendOption(option.value)
-                self.btnOptions = []
+                if(!self.disableQChip) {
+                  self.sendOption(option.value)
+                  self.btnOptions = []
+                }
               }
             }
           }, option.text)])
@@ -248,7 +267,7 @@ export default Vue.extend({
 
       setTimeout(() => {
         this.btnOptions.push(div)
-        this.disable = true
+        this.disableQInput = true
       }, 1800)
     },
 		async sendOption (option) {
@@ -336,7 +355,7 @@ export default Vue.extend({
           LocalStorage.set('conversation', this.storeConversation)
         }        
       }, 1500)
-      this.disable = false
+      this.disableQInput = false
       this.checkTime()
     }
   },
@@ -360,7 +379,7 @@ export default Vue.extend({
       },
       class: 'q-py-sm full-width no-box-shadow no-border-radius',
       on: {
-        click: this.initChat
+        click: this.resetChat
       }
     }, 'Begin opnieuw met chat')
 
@@ -388,7 +407,7 @@ export default Vue.extend({
       props: {
         dense: true,
         borderless: true,
-        disable: self.disable
+        disable: self.disableQInput
       },
       attrs: {
         placeholder: 'Type jouw bericht in'

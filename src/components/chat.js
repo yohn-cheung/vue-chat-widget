@@ -14,7 +14,6 @@ export default Vue.extend({
   data() {
     return {
       title: this.config.text.title,
-      icon: 'chat',
       chatInput: '',
       chatConversation: [],
       btnOptions: [],
@@ -27,14 +26,18 @@ export default Vue.extend({
       button: null,
       chatBotWidth: '370px',
       chatBotHeight: '730px',
-      disable: false
+      chatBotChat: null,
+      chatBotIframe: null,
+      disableQInput: false,
+      disableQChip: false
     }
-	},
+  },
 	async mounted(){
-    const chatbot = document.getElementById('chatbot-chat')
+    this.chatBotChat = document.getElementById('chatbot-chat')
+    this.chatBotChat.style.width = '100px'
+    this.chatBotChat.style.height = '100px'
 
-    chatbot.style.width = '100px'
-    chatbot.style.height = '100px'
+    this.chatBotIframe = document.getElementById('chatbot-iframe')
 
     let conversation = LocalStorage.getItem('conversation')
     let options = LocalStorage.getItem('options')
@@ -58,18 +61,9 @@ export default Vue.extend({
       if(options) {
         this.getOptions(options)
       }
-    } 
-    
-    if(!conversation || conversation.length === 0)
-    {
-      const startConvo = 'hello'
-      const botResponse = await this.sendTolex(startConvo)
-      options = botResponse.responseCard.genericAttachments[0]
-      this.getOptions(options)
-      this.sendBotMessage(botResponse.message, botResponse.dialogState)
+      this.checkTime()
+      this.buttonAvatar()
     }
-
-    this.checkTime()
   },
   watch: {
     chatConversation: function (val) {
@@ -87,7 +81,7 @@ export default Vue.extend({
     renderChildren() {
 			const self = this
 			
-			const iframe = document.getElementById('chatbot-iframe')
+      const iframe = document.getElementById('chatbot-iframe')
       const body = iframe.contentDocument.body
       const el = document.createElement('div') // we will mount or nested app to this element
       body.appendChild(el)
@@ -117,6 +111,10 @@ export default Vue.extend({
         height: 475px;
         overflow: auto;
 				background: rgb(234, 238, 243);
+      }
+
+      .q-message-avatar {
+        background: #ffffff;
       }
 
       .q-message-text-content div > p > a {
@@ -159,27 +157,62 @@ export default Vue.extend({
 
       chatApp.$mount(el) // mount into iframe
     },
+    buttonAvatar() {
+      // toggle button open/close chat
+      const img = this.createElement('img', { 
+        attrs: {
+          src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif'
+        }
+      })
+      
+      const qAvatar = this.createElement('q-avatar', {props: { size: "42px" } },[img])
+      self.button = this.createElement('q-btn', {
+        props: {
+          round: true
+        },
+        class: 'bg-white fixed-bottom-right q-ma-md',
+        on: {
+          click: this.toggleButtonChat
+        }
+      }, [qAvatar])
+    },
+    buttonClose(){
+      self.button = this.createElement('q-btn', {
+        props: {
+          round: true,
+          icon: 'close'
+        },
+        class: 'bg-white fixed-bottom-right q-ma-md',
+        on: {
+          click: this.toggleButtonChat
+        }
+      })
+    },
     toggleButtonChat() {
-      const chatbot = document.getElementById('chatbot-chat')
-
-      const iframe = document.getElementById('chatbot-iframe')
-      const wrapper = iframe.contentWindow.document.getElementById('wrapper')
+      const wrapper = this.chatBotIframe.contentWindow.document.getElementById('wrapper')
       wrapper.style.display = wrapper.style.display === 'block' ? '' : 'block';
+
+      if (this.$q.platform.is.mobile && !this.$q.platform.is.ipad){
+        const conversation = this.chatBotIframe.contentWindow.document.querySelector('.conversation')
+        this.chatBotWidth = '100%',
+        this.chatBotHeight = '100%',
+        conversation.style.height = '65%'
+      }
       
       if(wrapper.style.display === 'block' ){
-        this.icon = 'close'
-        chatbot.style.width = this.chatBotWidth
-        chatbot.style.height = this.chatBotHeight
+        this.chatBotChat.style.width = this.chatBotWidth
+        this.chatBotChat.style.height = this.chatBotHeight
+        this.initChat()
+        // this.buttonClose()
+        this.buttonAvatar()
       } else {
-        this.icon = 'chat'
-        chatbot.style.width = '100px'
-        chatbot.style.height = '100px'
+        this.chatBotChat.style.width = '100px'
+        this.chatBotChat.style.height = '100px'
+        this.buttonAvatar()
       }
     },
     scrollToBottom () {
-      const iframe = document.getElementById('chatbot-iframe')
-      const conversation = iframe.contentWindow.document.querySelector('.conversation')
-
+      const conversation = this.chatBotIframe.contentWindow.document.querySelector('.conversation')
       let conversationStorage = LocalStorage.getItem('conversation')
 
       if(conversationStorage.length > 1){
@@ -191,12 +224,30 @@ export default Vue.extend({
 		checkTime(){
 			
       setTimeout(() => {
-				const iframe = document.getElementById('chatbot-iframe')
-				iframe.contentWindow.document.getElementById('message-input').style.display = 'none'
-				iframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
+        this.disableQChip = true
+				this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
+        this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
+        this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.add('disabled')
       }, this.time)
     },
-    async initChat() {			
+    async initChat(){
+      let conversation = LocalStorage.getItem('conversation')
+      if(!conversation || conversation.length === 0)
+      {
+        this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+          
+        const startConvo = 'hello'
+        const botResponse = await this.sendTolex(startConvo)
+
+        if (botResponse.responseCard) {
+          let options = botResponse.responseCard.genericAttachments[0]
+          this.getOptions(options)
+        }
+        this.sendBotMessage(botResponse.message, botResponse.dialogState)
+        this.checkTime()
+      }
+    },
+    async resetChat() {			
 			this.chatConversation = []
       this.storeConversation = []
       this.btnOptions = []
@@ -208,11 +259,15 @@ export default Vue.extend({
       const botResponse = await this.sendTolex(startConvo)
       const options = botResponse.responseCard.genericAttachments[0]
       this.getOptions(options)
-			this.sendBotMessage(botResponse.message, botResponse.dialogState)
+      this.sendBotMessage(botResponse.message, botResponse.dialogState)
+      
+      this.disableQChip = false
 						
-			const iframe = document.getElementById('chatbot-iframe')
-			iframe.contentWindow.document.getElementById('message-input').style.display = 'block'
-			iframe.contentWindow.document.getElementById('start-chat-button').style.display = 'none'
+			this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'block'
+      this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'none'
+      this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.remove('disabled')
+
+      this.checkTime()
 		},
 		getOptions(options) {
       if (!options) {
@@ -232,8 +287,10 @@ export default Vue.extend({
             }, 
             on: {
               click: function(event) {
-                self.sendOption(option.value)
-                self.btnOptions = []
+                if(!self.disableQChip) {
+                  self.sendOption(option.value)
+                  self.btnOptions = []
+                }
               }
             }
           }, option.text)])
@@ -245,7 +302,7 @@ export default Vue.extend({
 
       setTimeout(() => {
         this.btnOptions.push(div)
-        this.disable = true
+        this.disableQInput = true
       }, 1800)
     },
 		async sendOption (option) {
@@ -291,8 +348,7 @@ export default Vue.extend({
 			this.storeConversation.push(data)
       LocalStorage.set('conversation', this.storeConversation)
       
-      const iframe = document.getElementById('chatbot-iframe')
-			iframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+			this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
 
       const botResponse = await this.sendTolex(newMessage)
       if (botResponse.responseCard) {
@@ -304,13 +360,12 @@ export default Vue.extend({
       this.getOptions(options)
       this.sendBotMessage(botResponse.message, botResponse.dialogState)
 		},
-		sendBotMessage (message, state) {
-			const iframe = document.getElementById('chatbot-iframe')			
-      iframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+		sendBotMessage (message, state) {	
+      this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
       
       setTimeout(() => {
         let data = {
-          avatar: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif',
+          avatar: 'https://www.simac.com/bundles/lamecowebsite/img/simac-logo.png',
           text: [message],
           from: 'bot',
           sent: false,
@@ -320,37 +375,27 @@ export default Vue.extend({
         }
 
         const chat = this.createElement('q-chat-message', {
-          props: {
-            avatar: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif',
-            text: [message],
-            from: 'bot',
-            sent: false,
-            name: 'Bot Alice',
-            bgColor: 'red-9',
-            textColor: 'white'
-          }
+          props: data
         })
         this.chatConversation.push(chat)
-        iframe.contentWindow.document.getElementById('spinner').style.display = 'none'
+        this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
 
         if(state === 'Fulfilled'){
           this.storeConversation = []
 
-          // const iframe = document.getElementById('chatbot-iframe')
-          iframe.contentWindow.document.getElementById('message-input').style.display = 'none'
-          iframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
+          this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
+          this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
         
         } else {
           this.storeConversation.push(data)
           LocalStorage.set('conversation', this.storeConversation)
         }        
       }, 1500)
-      this.disable = false
+      this.disableQInput = false
       this.checkTime()
     }
   },
   render(createElement) {
-
     var self = this
 		self.createElement = createElement
 
@@ -369,7 +414,7 @@ export default Vue.extend({
       },
       class: 'q-py-sm full-width no-box-shadow no-border-radius',
       on: {
-        click: this.initChat
+        click: this.resetChat
       }
     }, 'Begin opnieuw met chat')
 
@@ -397,7 +442,7 @@ export default Vue.extend({
       props: {
         dense: true,
         borderless: true,
-        disable: self.disable
+        disable: self.disableQInput
       },
       attrs: {
         placeholder: 'Type jouw bericht in'
@@ -433,13 +478,9 @@ export default Vue.extend({
 		}, [self.chatConversation, self.btnOptions, QSpinnerDots])
 
 		// header of the widget with avatar
-    const img = createElement('img', { 
-      attrs: {
-        src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif'
-      }
-    })
-    const qAvatar = createElement('q-avatar', [img])
-    const qItemSectionAvatar = createElement('q-item-section', { props: { avatar: true }}, [qAvatar])
+    const imgHeader = createElement('img', { attrs: { src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif' }})
+    const qAvatarHeader = createElement('q-avatar', [imgHeader])
+    const qItemSectionAvatar = createElement('q-item-section', { props: { avatar: true }}, [qAvatarHeader])
     
     //header of widhet with title(s)
     const title = createElement('q-item-label', {class: 'text-h5'},'Chatbot')
@@ -455,21 +496,27 @@ export default Vue.extend({
         borderRadius: '15px'
       },
       attrs: {id: 'wrapper'},
-		}, [header, body, messageInput, startChatButton, footer])
-		
-		// toggle button open/close chat
-    self.button = createElement('q-btn', {
-      class: 'bg-white fixed-bottom-right q-ma-md',
-      props: {
-        icon: this.icon,
-        round: true,
-        size: 'md'
-      },
-      on: {
-        click: this.toggleButtonChat
+    }, [header, body, messageInput, startChatButton, footer])
+  
+
+    //toggleButton Chat
+    const img = createElement('img', { 
+      attrs: {
+        src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif'
       }
     })
     
+    const qAvatar = createElement('q-avatar', {props: { size: "42px" } },[img])
+    self.button = createElement('q-btn', {
+      props: {
+        round: true
+      },
+      class: 'bg-white fixed-bottom-right q-ma-md',
+      on: {
+        click: this.toggleButtonChat
+      }
+    }, [qAvatar])
+		
     const iframe = createElement('iframe', {
       attrs: {
         id: 'chatbot-iframe',

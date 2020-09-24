@@ -161,7 +161,6 @@ export default Vue.extend({
       chatApp.$mount(el) // mount into iframe
     },
     buttonAvatar() {
-      console.log('buttonAvatar')
       // toggle button open/close chat
       const img = this.createElement('img', { 
         attrs: {

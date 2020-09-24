@@ -166,7 +166,7 @@ export default Vue.extend({
       })
       
       const qAvatar = this.createElement('q-avatar', {props: { size: "42px" } },[img])
-      this.button = this.createElement('q-btn', {
+      self.button = this.createElement('q-btn', {
         props: {
           round: true
         },
@@ -177,7 +177,7 @@ export default Vue.extend({
       }, [qAvatar])
     },
     buttonClose(){
-      this.button = this.createElement('q-btn', {
+      self.button = this.createElement('q-btn', {
         props: {
           round: true,
           icon: 'close'
@@ -203,7 +203,8 @@ export default Vue.extend({
         this.chatBotChat.style.width = this.chatBotWidth
         this.chatBotChat.style.height = this.chatBotHeight
         this.initChat()
-        this.buttonClose()
+        // this.buttonClose()
+        this.buttonAvatar()
       } else {
         this.chatBotChat.style.width = '100px'
         this.chatBotChat.style.height = '100px'
@@ -493,7 +494,26 @@ export default Vue.extend({
         borderRadius: '15px'
       },
       attrs: {id: 'wrapper'},
-		}, [header, body, messageInput, startChatButton, footer])
+    }, [header, body, messageInput, startChatButton, footer])
+  
+
+    //toggleButton Chat
+    const img = createElement('img', { 
+      attrs: {
+        src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif'
+      }
+    })
+    
+    const qAvatar = createElement('q-avatar', {props: { size: "42px" } },[img])
+    self.button = createElement('q-btn', {
+      props: {
+        round: true
+      },
+      class: 'bg-white fixed-bottom-right q-ma-md',
+      on: {
+        click: this.toggleButtonChat
+      }
+    }, [qAvatar])
 		
     const iframe = createElement('iframe', {
       attrs: {

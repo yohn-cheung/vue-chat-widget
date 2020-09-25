@@ -29,7 +29,8 @@ export default Vue.extend({
       chatBotChat: null,
       chatBotIframe: null,
       disableQInput: false,
-      disableQChip: false
+      disableQChip: false,
+      wrapperButton: null
     }
   },
 	async mounted(){
@@ -41,6 +42,8 @@ export default Vue.extend({
 
     let conversation = LocalStorage.getItem('conversation')
     let options = LocalStorage.getItem('options')
+
+    this.buttonAvatar()
 
     if(conversation) {
       conversation.forEach(chat => {
@@ -62,7 +65,6 @@ export default Vue.extend({
         this.getOptions(options)
       }
       this.checkTime()
-      this.buttonAvatar()
     }
   },
   watch: {
@@ -151,7 +153,8 @@ export default Vue.extend({
       const chatApp = new Vue({
         name: 'chatApp',
         render(h) {
-          return h('div', {class: 'simac-chat'}, [self.wrapper, self.button])
+          return h('div', {class: 'simac-chat'}, [self.wrapper, self.wrapperButton])
+          // return h('div', {class: 'simac-chat'}, [self.wrapper, self.button]) self.toggleButton
         },
       })
 
@@ -166,7 +169,7 @@ export default Vue.extend({
       })
       
       const qAvatar = this.createElement('q-avatar', {props: { size: "42px" } },[img])
-      self.button = this.createElement('q-btn', {
+      this.button = this.createElement('q-btn', {
         props: {
           round: true
         },
@@ -177,7 +180,7 @@ export default Vue.extend({
       }, [qAvatar])
     },
     buttonClose(){
-      self.button = this.createElement('q-btn', {
+      this.button = this.createElement('q-btn', {
         props: {
           round: true,
           icon: 'close'
@@ -203,8 +206,7 @@ export default Vue.extend({
         this.chatBotChat.style.width = this.chatBotWidth
         this.chatBotChat.style.height = this.chatBotHeight
         this.initChat()
-        // this.buttonClose()
-        this.buttonAvatar()
+        this.buttonClose()
       } else {
         this.chatBotChat.style.width = '100px'
         this.chatBotChat.style.height = '100px'
@@ -506,16 +508,18 @@ export default Vue.extend({
       }
     })
     
-    const qAvatar = createElement('q-avatar', {props: { size: "42px" } },[img])
-    self.button = createElement('q-btn', {
-      props: {
-        round: true
-      },
-      class: 'bg-white fixed-bottom-right q-ma-md',
-      on: {
-        click: this.toggleButtonChat
-      }
-    }, [qAvatar])
+    // const qAvatar = createElement('q-avatar', {props: { size: "42px" } },[img])
+    // self.button = createElement('q-btn', {
+    //   props: {
+    //     round: true
+    //   },
+    //   class: 'bg-white fixed-bottom-right q-ma-md',
+    //   on: {
+    //     click: this.toggleButtonChat
+    //   }
+    // }, [qAvatar])
+
+    self.wrapperButton = createElement('div', [self.button])
 		
     const iframe = createElement('iframe', {
       attrs: {

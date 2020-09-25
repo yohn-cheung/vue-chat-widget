@@ -56,12 +56,12 @@ for (let i = 0; i < loaderObject.q.length; i++) {
     switch (methodName) {
         case 'init':
             const loadedObject = Object.assign(defaultConfig, item[1]);
-            console.log('loadedObject: ', loadedObject)
+            // console.log('loadedObject: ', loadedObject)
             // console.log(`Starting widget [${instanceName}]`, loadedObject); 
 
-            if (loadedObject.debug) {
-                console.log(`Starting widget [${instanceName}]`, loadedObject); 
-            }
+            // if (loadedObject.debug) {
+            //     console.log(`Starting widget [${instanceName}]`, loadedObject); 
+            // }
 
             // the actual rendering of the widget
             const wrappingElement = loadedObject.element ?? win.document.body;
@@ -70,7 +70,7 @@ for (let i = 0; i < loaderObject.q.length; i++) {
 
             widgetID = `#widget-${instanceName}`
 
-            console.log('widgetID: ', widgetID)
+            // console.log('widgetID: ', widgetID)
             
 
             document.body.appendChild(targetElement)

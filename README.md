@@ -13,7 +13,7 @@ npm install
             js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
             js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
         }(window, document, 'script', '_hw', './widget.js'));
-        _hw('init', { tenant: {name: 'de schoor', id: 1}, text: {title: 'De Schoor Chat' }});
+        _hw('init');
     </script>
 ```
 
@@ -36,7 +36,7 @@ npm run build
             js = d.createElement(s), fjs = d.getElementsByTagName(s)[0];
             js.id = o; js.src = f; js.async = 1; fjs.parentNode.insertBefore(js, fjs);
         }(window, document, 'script', '_hw', 'https://yourwebsite.com/widget.js'));
-        _hw('init', { tenant: {name: 'de schoor', id: 1}, text: {title: 'De Schoor Chat' }});
+        _hw('init');
     </script>
 ```
 

@@ -253,16 +253,17 @@ export default Vue.extend({
 			this.chatConversation = []
       this.storeConversation = []
       this.btnOptions = []
-      let options = null
+      l//et options = null
 
       LocalStorage.set('options', '')
       LocalStorage.set('conversation', this.storeConversation)
 
       const startConvo = 'hello'
       const botResponse = await this.sendTolex(startConvo)
-      if (botResponse.responseCard) {
-        options = botResponse.responseCard.genericAttachments[0]
-      }
+      // if (botResponse.responseCard) {
+      //   options = botResponse.responseCard.genericAttachments[0]
+      // }
+      const options = botResponse.responseCard.genericAttachments[0]
       this.getOptions(options)
       this.sendBotMessage(botResponse.message, botResponse.dialogState)
       
@@ -336,7 +337,6 @@ export default Vue.extend({
       }
 
       let data = {
-        avatar: 'https://static.vecteezy.com/system/resources/thumbnails/000/550/731/small/user_icon_004.jpg',
         text: [inputMessage],
         from: 'me',
         sent: true,

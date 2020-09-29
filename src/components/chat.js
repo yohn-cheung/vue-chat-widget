@@ -253,13 +253,16 @@ export default Vue.extend({
 			this.chatConversation = []
       this.storeConversation = []
       this.btnOptions = []
+      let options = null
 
       LocalStorage.set('options', '')
       LocalStorage.set('conversation', this.storeConversation)
 
       const startConvo = 'hello'
       const botResponse = await this.sendTolex(startConvo)
-      const options = botResponse.responseCard.genericAttachments[0]
+      if (botResponse.responseCard) {
+        options = botResponse.responseCard.genericAttachments[0]
+      }
       this.getOptions(options)
       this.sendBotMessage(botResponse.message, botResponse.dialogState)
       

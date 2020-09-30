@@ -253,12 +253,16 @@ export default Vue.extend({
 			this.chatConversation = []
       this.storeConversation = []
       this.btnOptions = []
+      //let options = null
 
       LocalStorage.set('options', '')
       LocalStorage.set('conversation', this.storeConversation)
 
       const startConvo = 'hello'
       const botResponse = await this.sendTolex(startConvo)
+      // if (botResponse.responseCard) {
+      //   options = botResponse.responseCard.genericAttachments[0]
+      // }
       const options = botResponse.responseCard.genericAttachments[0]
       this.getOptions(options)
       this.sendBotMessage(botResponse.message, botResponse.dialogState)
@@ -334,7 +338,6 @@ export default Vue.extend({
       }
 
       let data = {
-        avatar: 'https://static.vecteezy.com/system/resources/thumbnails/000/550/731/small/user_icon_004.jpg',
         text: [inputMessage],
         from: 'me',
         sent: true,
@@ -367,7 +370,8 @@ export default Vue.extend({
       
       setTimeout(() => {
         let data = {
-          avatar: 'https://www.simac.com/bundles/lamecowebsite/img/simac-logo.png',
+          // avatar: 'https://www.simac.com/bundles/lamecowebsite/img/simac-logo.png',
+          avatar: 'https://cdn.dribbble.com/users/690291/screenshots/3507754/untitled-1.gif',
           text: [message],
           from: 'bot',
           sent: false,

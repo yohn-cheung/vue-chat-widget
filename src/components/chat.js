@@ -253,7 +253,7 @@ export default Vue.extend({
 			this.chatConversation = []
       this.storeConversation = []
       this.btnOptions = []
-      l//et options = null
+      //let options = null
 
       LocalStorage.set('options', '')
       LocalStorage.set('conversation', this.storeConversation)
@@ -369,7 +369,8 @@ export default Vue.extend({
       
       setTimeout(() => {
         let data = {
-          avatar: 'https://www.simac.com/bundles/lamecowebsite/img/simac-logo.png',
+          // avatar: 'https://www.simac.com/bundles/lamecowebsite/img/simac-logo.png',
+          avatar: 'https://cdn.dribbble.com/users/690291/screenshots/3507754/untitled-1.gif',
           text: [message],
           from: 'bot',
           sent: false,

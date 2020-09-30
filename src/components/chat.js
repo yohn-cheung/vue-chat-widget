@@ -395,7 +395,7 @@ export default Vue.extend({
           this.storeConversation.push(data)
           LocalStorage.set('conversation', this.storeConversation)
         }        
-      }, 1500)
+      }, 1200)
       this.disableQInput = false
       this.checkTime()
     }

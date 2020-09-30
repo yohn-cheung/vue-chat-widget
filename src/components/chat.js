@@ -23,14 +23,13 @@ export default Vue.extend({
       link: 'https://www.simac.com/nl',
 			time: 300000,
 			wrapper: null,
-      button: null,
+      wrapperButton: null,
       chatBotWidth: '370px',
-      chatBotHeight: '730px',
+      chatBotHeight: '680px',
       chatBotChat: null,
       chatBotIframe: null,
       disableQInput: false,
       disableQChip: false,
-      wrapperButton: null
     }
   },
 	async mounted(){
@@ -42,8 +41,6 @@ export default Vue.extend({
 
     let conversation = LocalStorage.getItem('conversation')
     let options = LocalStorage.getItem('options')
-
-    this.buttonAvatar()
 
     if(conversation) {
       conversation.forEach(chat => {
@@ -160,40 +157,12 @@ export default Vue.extend({
 
       chatApp.$mount(el) // mount into iframe
     },
-    buttonAvatar() {
-      // toggle button open/close chat
-      const img = this.createElement('img', { 
-        attrs: {
-          src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif'
-        }
-      })
-      
-      const qAvatar = this.createElement('q-avatar', {props: { size: "42px" } },[img])
-      this.button = this.createElement('q-btn', {
-        props: {
-          round: true
-        },
-        class: 'bg-white fixed-bottom-right q-ma-md',
-        on: {
-          click: this.toggleButtonChat
-        }
-      }, [qAvatar])
-    },
-    buttonClose(){
-      this.button = this.createElement('q-btn', {
-        props: {
-          round: true,
-          icon: 'close'
-        },
-        class: 'bg-white fixed-bottom-right q-ma-md',
-        on: {
-          click: this.toggleButtonChat
-        }
-      })
-    },
     toggleButtonChat() {
       const wrapper = this.chatBotIframe.contentWindow.document.getElementById('wrapper')
       wrapper.style.display = wrapper.style.display === 'block' ? '' : 'block';
+
+      const togglebutton = this.chatBotIframe.contentWindow.document.getElementById('togglebutton')
+      
 
       if (this.$q.platform.is.mobile && !this.$q.platform.is.ipad){
         const conversation = this.chatBotIframe.contentWindow.document.querySelector('.conversation')
@@ -206,11 +175,11 @@ export default Vue.extend({
         this.chatBotChat.style.width = this.chatBotWidth
         this.chatBotChat.style.height = this.chatBotHeight
         this.initChat()
-        this.buttonClose()
+        togglebutton.style.display = 'none';
       } else {
         this.chatBotChat.style.width = '100px'
         this.chatBotChat.style.height = '100px'
-        this.buttonAvatar()
+        togglebutton.style.display = 'block';
       }
     },
     scrollToBottom () {
@@ -396,7 +365,7 @@ export default Vue.extend({
           this.storeConversation.push(data)
           LocalStorage.set('conversation', this.storeConversation)
         }        
-      }, 1500)
+      }, 1200)
       this.disableQInput = false
       this.checkTime()
     }
@@ -488,13 +457,24 @@ export default Vue.extend({
     const qAvatarHeader = createElement('q-avatar', [imgHeader])
     const qItemSectionAvatar = createElement('q-item-section', { props: { avatar: true }}, [qAvatarHeader])
     
-    //header of widhet with title(s)
+    //header of widget with title(s)
     const title = createElement('q-item-label', {class: 'text-h5'},'Chatbot')
     const subTitle = createElement('q-item-label', {props: {caption: true}}, 'Online')
     const qItemSectionText = createElement('q-item-section', [title, subTitle])
     
+    const closeIcon = createElement('q-btn', {
+      props: {
+        round: true,
+        flat: true,
+        icon: 'close'
+      },
+      on: {
+        click: self.toggleButtonChat
+      }
+    })
+
     //header
-    const header = createElement('q-item', {class: 'q-py-md'},[qItemSectionAvatar, qItemSectionText])
+    const header = createElement('q-item', {class: 'q-py-md'},[qItemSectionAvatar, qItemSectionText, closeIcon])
 
 		self.wrapper = createElement('q-card', { 
       class: 'q-ma-md shadow-6',
@@ -505,25 +485,24 @@ export default Vue.extend({
     }, [header, body, messageInput, startChatButton, footer])
   
 
-    //toggleButton Chat
     const img = createElement('img', { 
       attrs: {
         src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif'
       }
-    })
+    })    
+    const qAvatar = createElement('q-avatar', {props: { size: "42px" } },[img])
     
-    // const qAvatar = createElement('q-avatar', {props: { size: "42px" } },[img])
-    // self.button = createElement('q-btn', {
-    //   props: {
-    //     round: true
-    //   },
-    //   class: 'bg-white fixed-bottom-right q-ma-md',
-    //   on: {
-    //     click: this.toggleButtonChat
-    //   }
-    // }, [qAvatar])
-
-    self.wrapperButton = createElement('div', [self.button])
+    const button = createElement('q-btn', {
+      props: {
+        round: true
+      },
+      class: 'bg-white fixed-bottom-right q-ma-md',
+      on: {
+        click: this.toggleButtonChat
+      }
+    }, [qAvatar])
+    
+    self.wrapperButton = createElement('div',{attrs: {id: 'togglebutton' }}, [button])
 		
     const iframe = createElement('iframe', {
       attrs: {

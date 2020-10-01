@@ -6,8 +6,6 @@ import awsconfig from '../aws-exports';
 Amplify.configure(awsconfig);
 Vue.prototype.$Interactions = Interactions
 
-import { LocalStorage } from 'quasar'
-
 export default Vue.extend({
   name: 'simac-chat',
   props: ['config'],
@@ -38,31 +36,7 @@ export default Vue.extend({
     this.chatBotChat.style.height = '100px'
 
     this.chatBotIframe = document.getElementById('chatbot-iframe')
-
-    let conversation = LocalStorage.getItem('conversation')
-    let options = LocalStorage.getItem('options')
-
-    if(conversation) {
-      conversation.forEach(chat => {
-        const chatMessage = this.createElement('q-chat-message', {
-          props: {
-            avatar: chat.avatar,
-            text: chat.text,
-            from: chat.from,
-            sent: chat.sent,
-            bgColor: chat.bgColor,
-            textColor: chat.textColor
-          }
-        })
-        this.chatConversation.push(chatMessage)
-      });
-      this.storeConversation = conversation
-
-      if(options) {
-        this.getOptions(options)
-      }
-      this.checkTime()
-    }
+    this.checkTime()
   },
   watch: {
     chatConversation: function (val) {
@@ -184,13 +158,13 @@ export default Vue.extend({
     },
     scrollToBottom () {
       const conversation = this.chatBotIframe.contentWindow.document.querySelector('.conversation')
-      let conversationStorage = LocalStorage.getItem('conversation')
+      // let conversationStorage = LocalStorage.getItem('conversation')
 
-      if(conversationStorage.length > 1){
-        setTimeout(() => {
-          conversation.scrollTop = conversation.scrollHeight;
-        }, 20)
-      }      
+      // if(conversationStorage.length > 1){
+      //   setTimeout(() => {
+      //     conversation.scrollTop = conversation.scrollHeight;
+      //   }, 20)
+      // }      
     },
 		checkTime(){
 			
@@ -202,11 +176,8 @@ export default Vue.extend({
       }, this.time)
     },
     async initChat(){
-      let conversation = LocalStorage.getItem('conversation')
-      if(!conversation || conversation.length === 0)
-      {
+      if(!this.chatConversation.length) {
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
-          
         const startConvo = 'hello'
         const botResponse = await this.sendTolex(startConvo)
 
@@ -223,9 +194,6 @@ export default Vue.extend({
       this.storeConversation = []
       this.btnOptions = []
       //let options = null
-
-      LocalStorage.set('options', '')
-      LocalStorage.set('conversation', this.storeConversation)
 
       const startConvo = 'hello'
       const botResponse = await this.sendTolex(startConvo)
@@ -250,8 +218,6 @@ export default Vue.extend({
       }
       const buttons = []
       let self  = this
-
-      LocalStorage.set('options', options)
 
       options.buttons.forEach(option => {
         const button = this.createElement('q-chip', { props: { outline: true }, class: "bg-white text-black" }, [
@@ -319,7 +285,6 @@ export default Vue.extend({
 			this.chatConversation.push(chat)
 			
 			this.storeConversation.push(data)
-      LocalStorage.set('conversation', this.storeConversation)
       
 			this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
 
@@ -327,7 +292,7 @@ export default Vue.extend({
       if (botResponse.responseCard) {
         options = botResponse.responseCard.genericAttachments[0]
       } else {
-        LocalStorage.set('options', '')
+        // LocalStorage.set('options', '')
 			}
 			
       this.getOptions(options)
@@ -362,7 +327,6 @@ export default Vue.extend({
         
         } else {
           this.storeConversation.push(data)
-          LocalStorage.set('conversation', this.storeConversation)
         }        
       }, 1200)
       this.disableQInput = false

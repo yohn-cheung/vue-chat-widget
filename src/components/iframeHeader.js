@@ -37,7 +37,7 @@ const iframeHeader = `
   display: none;
 }
 
-#start-chat-button {
+#reset-chat-button {
   display: none;
 }
 
@@ -60,5 +60,5 @@ const iframeHeader = `
 `
 
 module.exports ={
-    iframeHeader
+  iframeHeader
 }

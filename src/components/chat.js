@@ -8,6 +8,12 @@ Vue.prototype.$Interactions = Interactions
 
 import { LocalStorage } from 'quasar'
 import { iframeHeader } from './iframeHeader'
+import { 
+  getHeader, getBody, 
+  getmessageInput, getResetChatButton,
+  getFooter, getButton,
+  getIframe
+} from './render'
 import '../styles/chat.css'
 
 export default Vue.extend({
@@ -126,7 +132,7 @@ export default Vue.extend({
         }, 20)
       }      
     },
-		checkTime(){
+		checkTime () {
       setTimeout(() => {
         this.storeConversation = []
         LocalStorage.set('options', '')
@@ -134,11 +140,11 @@ export default Vue.extend({
 
         this.disableQChip = true
 				this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
-        this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
+        this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
         this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.add('disabled')
       }, this.time)
     },
-    async initChat(){
+    async initChat () {
       if(!this.chatConversation.length)
       {
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
@@ -153,7 +159,7 @@ export default Vue.extend({
         this.checkTime()
       }
     },
-    async resetChat() {			
+    async resetChat () {			
 			this.chatConversation = []
       this.storeConversation = []
       this.btnOptions = []
@@ -172,7 +178,7 @@ export default Vue.extend({
       this.disableQChip = false
 						
 			this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'block'
-      this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'none'
+      this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'none'
       this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.remove('disabled')
 
       this.checkTime()
@@ -215,14 +221,14 @@ export default Vue.extend({
 		async sendOption (option) {
       await this.sendUserMessage(option)
     },
-    async sendTolex(input) {
+    async sendTolex (input) {
       const response = await Interactions.send(
         'contactformwidget_playground',
         input
       )
       return response 
     },
-    async sendUserMessage(newMessage) {
+    async sendUserMessage (newMessage) {
       this.chatInput = ''			
 			let options = ''
 
@@ -283,7 +289,7 @@ export default Vue.extend({
           this.storeConversation = []
 
           this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
-          this.chatBotIframe.contentWindow.document.getElementById('start-chat-button').style.display = 'block'
+          this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
         
         } else {
           this.storeConversation.push(data)
@@ -298,147 +304,33 @@ export default Vue.extend({
     var self = this
 		self.createElement = createElement
 
-		//footer
-		const footer = createElement('q-card-section', {
-      class: 'footer q-py-sm text-center',
-      domProps: {
-        innerHTML: "Powered by <a href='"+this.link+"' target='_blank'>"+this.company+"</a>"  
-      }
-    })
-
+    // header of the widget with avatar
+    const header = getHeader(createElement, self.toggleButtonChat)
+    // chat wrapper for the chat-messages, options and the q-spinners dots
+    const body = getBody(createElement, self.chatConversation, self.btnOptions)
+    // messages exchanged
+    const messageInput = getmessageInput(createElement, self.chatInput, self.sendUserMessage, self.disableQInput)
     //start chat again button if the 5 minutes are passed
-    const startChatButton = createElement('q-btn',{
-      attrs: {
-        id: 'start-chat-button'
-      },
-      class: 'q-py-sm full-width no-box-shadow no-border-radius',
-      on: {
-        click: this.resetChat
-      }
-    }, 'Begin opnieuw met chat')
-
-		// icon for the message input
-    const sendIcon = createElement('q-btn', {
-      class: 'text-grey-4',
-      props: {
-        icon: 'send',
-        round: true,
-        dense: true,
-        flat: true
-      },
-      on: {
-        input: function (event) {
-          self.chatInput = event
-        },
-        click: function(event){
-          self.sendUserMessage(self.chatInput)
-        }
-      }
-    })
-  
-    // Inputfield of the chat
-    const qInput = createElement('q-input',  {
-      props: {
-        dense: true,
-        borderless: true,
-        disable: self.disableQInput
-      },
-      attrs: {
-        placeholder: 'Type jouw bericht in'
-      },
-      on: {
-        input: function (event) {
-          self.chatInput = event
-        },
-        keyup: function(event){
-          if(event.keyCode ===  13){
-            self.sendUserMessage(self.chatInput)
-          }
-        }
-      }
-    },[sendIcon])
-
-    const messageInput = createElement('q-card-section', {attrs: {id: 'message-input'} ,class: 'q-py-sm'}, [qInput])
-
-		// q-spinners-dots
-		const QSpinnerDots = createElement('div', { attrs: { id: 'spinner' }, class: "spinner-position"}, [
-			createElement('q-spinner-dots', {
-				props: {
-					size: '2rem'
-				}
-			})
-		])
-		
-		// chat wrapper for the chat-messages, options and the q-spinners dots
-		const body = createElement('q-card-section', {
-			attrs: {id: 'conversation'},
-			class: 'conversation inset-shadow',
-		}, [self.chatConversation, self.btnOptions, QSpinnerDots])
-
-		// header of the widget with avatar
-    const imgHeader = createElement('img', { attrs: { src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif' }})
-    const qAvatarHeader = createElement('q-avatar', [imgHeader])
-    const qItemSectionAvatar = createElement('q-item-section', { props: { avatar: true }}, [qAvatarHeader])
-    
-    //header of widget with title(s)
-    const title = createElement('q-item-label', {class: 'text-h5'},'Chatbot')
-    const subTitle = createElement('q-item-label', {props: {caption: true}}, 'Online')
-    const qItemSectionText = createElement('q-item-section', [title, subTitle])
-    
-    const closeIcon = createElement('q-btn', {
-      props: {
-        round: true,
-        flat: true,
-        icon: 'close'
-      },
-      on: {
-        click: self.toggleButtonChat
-      }
-    })
-
-    //header
-    const header = createElement('q-item', {class: 'q-py-md'},[qItemSectionAvatar, qItemSectionText, closeIcon])
-
+    const resetChatButton = getResetChatButton(createElement, self.resetChat)
+    //TODO: Yohn what is this button for?? Maybe a better name
+    const button = getButton(createElement,self.toggleButtonChat)
+    //footer
+    const footer = getFooter(createElement, self.company, self.link)
+   // Iframe
+   const iframe = getIframe(createElement, self.renderChildren)
+   // wrapper
 		self.wrapper = createElement('q-card', { 
       class: 'q-ma-md shadow-6',
       style: {
         borderRadius: '15px'
       },
       attrs: {id: 'wrapper'},
-    }, [header, body, messageInput, startChatButton, footer])
-  
-
-    const img = createElement('img', { 
-      attrs: {
-        src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif'
-      }
-    })    
-    const qAvatar = createElement('q-avatar', {props: { size: "42px" } },[img])
-    
-    const button = createElement('q-btn', {
-      props: {
-        round: true
-      },
-      class: 'bg-white fixed-bottom-right q-ma-md',
-      on: {
-        click: this.toggleButtonChat
-      }
-    }, [qAvatar])
+    }, [header, body, messageInput,  resetChatButton, footer])
     
     self.wrapperButton = createElement('div',{attrs: {id: 'togglebutton' }}, [button])
-		
-    const iframe = createElement('iframe', {
-      attrs: {
-        id: 'chatbot-iframe',
-        sandbox: 'allow-same-origin allow-scripts allow-popups'
-      },
-      on: { load: this.renderChildren }
-     })
 
-     return createElement('div', {
-      attrs: {
-        id: 'chatbot-chat'
-      }
-    },[iframe])
+    return createElement('div', {
+      attrs: { id: 'chatbot-chat' }
+      },[iframe])
   }
 })

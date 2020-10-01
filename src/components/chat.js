@@ -287,10 +287,10 @@ export default Vue.extend({
 
         if(state === 'Fulfilled'){
           this.storeConversation = []
+          LocalStorage.set('conversation', this.storeConversation)
 
           this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
           this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
-        
         } else {
           this.storeConversation.push(data)
           LocalStorage.set('conversation', this.storeConversation)

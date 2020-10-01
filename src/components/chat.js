@@ -313,7 +313,7 @@ export default Vue.extend({
     //start chat again button if the 5 minutes are passed
     const resetChatButton = getResetChatButton(createElement, self.resetChat)
     //TODO: Yohn what is this button for?? Maybe a better name
-    const button = getButton(createElement,self.toggleButtonChat)
+    const toggleButton = getButton(createElement,self.toggleButtonChat)
     //footer
     const footer = getFooter(createElement, self.company, self.link)
    // Iframe
@@ -327,7 +327,7 @@ export default Vue.extend({
       attrs: {id: 'wrapper'},
     }, [header, body, messageInput,  resetChatButton, footer])
     
-    self.wrapperButton = createElement('div',{attrs: {id: 'togglebutton' }}, [button])
+    self.wrapperButton = createElement('div',{attrs: {id: 'togglebutton' }}, [toggleButton])
 
     return createElement('div', {
       attrs: { id: 'chatbot-chat' }

@@ -1,0 +1,32 @@
+#chatbot-chat {
+  border: 0px;
+  background-color :  transparent;
+  pointer-events :  none  ;
+  z-index :  2147483639  ;
+  position :  fixed  ;
+  bottom :  0  ;
+  width : 370px ;
+  height : 680px ;
+  overflow :  hidden  ;
+  opacity :  1  ;
+  max-width :  100%  ;
+  right :  0px  ;
+  max-height :  100% 
+}
+
+#chatbot-iframe {
+  pointer-events : all;
+  background : none;
+  border : 0px;
+  float  : none;
+  position : absolute;
+  top  : 0px ;
+  right  : 0px ;
+  bottom  : 0px ;
+  left  : 0px ;
+  width  : 100% ;
+  height  : 100% ;
+  margin  : 0px ;
+  padding  : 0px ;
+  min-height  : 0px  
+}

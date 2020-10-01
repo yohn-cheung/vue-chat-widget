@@ -7,6 +7,8 @@ Amplify.configure(awsconfig);
 Vue.prototype.$Interactions = Interactions
 
 import { LocalStorage } from 'quasar'
+import { iframeHeader } from './iframeHeader'
+import '../styles/chat.css'
 
 export default Vue.extend({
   name: 'simac-chat',
@@ -26,16 +28,16 @@ export default Vue.extend({
       wrapperButton: null,
       chatBotWidth: '370px',
       chatBotHeight: '680px',
-      chatBotChat: null,
+      chatBotRoom: null,
       chatBotIframe: null,
       disableQInput: false,
       disableQChip: false,
     }
   },
 	async mounted(){
-    this.chatBotChat = document.getElementById('chatbot-chat')
-    this.chatBotChat.style.width = '100px'
-    this.chatBotChat.style.height = '100px'
+    this.chatBotRoom = document.getElementById('chatbot-chat')
+    this.chatBotRoom.style.width = '100px'
+    this.chatBotRoom.style.height = '100px'
 
     this.chatBotIframe = document.getElementById('chatbot-iframe')
 
@@ -58,100 +60,33 @@ export default Vue.extend({
       });
       this.storeConversation = conversation
 
-      if(options) {
-        this.getOptions(options)
-      }
+      if(options) this.getOptions(options)
+
       this.checkTime()
     }
   },
   watch: {
     chatConversation: function (val) {
-      if (Object.keys(val).length) {
-        this.scrollToBottom()
-      }
+      if (Object.keys(val).length) this.scrollToBottom()
     },
     btnOptions: function (val){
-      if (Object.keys(val).length) {
-        this.scrollToBottom()
-      }
+      if (Object.keys(val).length) this.scrollToBottom()
     }
   },
   methods: {
     renderChildren() {
 			const self = this
-			
       const iframe = document.getElementById('chatbot-iframe')
       const body = iframe.contentDocument.body
       const el = document.createElement('div') // we will mount or nested app to this element
       body.appendChild(el)
 
-      iframe.contentDocument.head.innerHTML = iframe.contentDocument.head.innerHTML + `
-      <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet" type="text/css">
-      <link href="https://cdn.jsdelivr.net/npm/quasar@1.14.0/dist/quasar.min.css" rel="stylesheet" type="text/css">`
-
-      iframe.contentDocument.head.innerHTML = iframe.contentDocument.head.innerHTML + `
-      <style>
-			@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
-			
-			body: {
-				height: 100%;
-				width: 100%;
-			}
-
-			.simac-chat {
-				overflow: hidden;
-      }
-      
-      #wrapper {
-        display: none
-      }
-
-      .conversation {
-        height: 475px;
-        overflow: auto;
-				background: rgb(234, 238, 243);
-      }
-
-      .q-message-avatar {
-        background: #ffffff;
-      }
-
-      .q-message-text-content div > p > a {
-        color: #ffffff;
-        font-weight: bold;
-      }
-
-      #spinner {
-        display: none;
-      }
-
-      #start-chat-button {
-        display: none;
-      }
-
-      #message-input {
-        border-top: 1px solid rgb(238, 238, 238);
-        border-bottom: 1px solid rgb(238, 238, 238);
-      }
-
-      .footer {
-        background: #f9f9f9;
-        font-size: 12px;
-        font-weight: bold;
-      }
-
-      .footer > a {
-        color: #a7002b;
-        text-decoration: none;
-      }
-      </style>
-      `
+      iframe.contentDocument.head.innerHTML = iframe.contentDocument.head.innerHTML + iframeHeader
 
       const chatApp = new Vue({
         name: 'chatApp',
         render(h) {
           return h('div', {class: 'simac-chat'}, [self.wrapper, self.wrapperButton])
-          // return h('div', {class: 'simac-chat'}, [self.wrapper, self.button]) self.toggleButton
         },
       })
 
@@ -160,10 +95,9 @@ export default Vue.extend({
     toggleButtonChat() {
       const wrapper = this.chatBotIframe.contentWindow.document.getElementById('wrapper')
       wrapper.style.display = wrapper.style.display === 'block' ? '' : 'block';
-
       const togglebutton = this.chatBotIframe.contentWindow.document.getElementById('togglebutton')
-      
 
+      // mobile
       if (this.$q.platform.is.mobile && !this.$q.platform.is.ipad){
         const conversation = this.chatBotIframe.contentWindow.document.querySelector('.conversation')
         this.chatBotWidth = '100%',
@@ -172,19 +106,19 @@ export default Vue.extend({
       }
       
       if(wrapper.style.display === 'block' ){
-        this.chatBotChat.style.width = this.chatBotWidth
-        this.chatBotChat.style.height = this.chatBotHeight
+        this.chatBotRoom.style.width = this.chatBotWidth
+        this.chatBotRoom.style.height = this.chatBotHeight
         this.initChat()
         togglebutton.style.display = 'none';
       } else {
-        this.chatBotChat.style.width = '100px'
-        this.chatBotChat.style.height = '100px'
+        this.chatBotRoom.style.width = '100px'
+        this.chatBotRoom.style.height = '100px'
         togglebutton.style.display = 'block';
       }
     },
     scrollToBottom () {
       const conversation = this.chatBotIframe.contentWindow.document.querySelector('.conversation')
-      let conversationStorage = LocalStorage.getItem('conversation')
+      const conversationStorage = LocalStorage.getItem('conversation')
 
       if(conversationStorage.length > 1){
         setTimeout(() => {
@@ -193,10 +127,8 @@ export default Vue.extend({
       }      
     },
 		checkTime(){
-			
       setTimeout(() => {
         this.storeConversation = []
-
         LocalStorage.set('options', '')
         LocalStorage.set('conversation', this.storeConversation)
 
@@ -207,16 +139,14 @@ export default Vue.extend({
       }, this.time)
     },
     async initChat(){
-      // let conversation = LocalStorage.getItem('conversation')
       if(!this.chatConversation.length)
       {
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
-          
         const startConvo = 'hello'
         const botResponse = await this.sendTolex(startConvo)
 
         if (botResponse.responseCard) {
-          let options = botResponse.responseCard.genericAttachments[0]
+          const options = botResponse.responseCard.genericAttachments[0]
           this.getOptions(options)
         }
         this.sendBotMessage(botResponse.message, botResponse.dialogState)
@@ -234,9 +164,7 @@ export default Vue.extend({
 
       const startConvo = 'hello'
       const botResponse = await this.sendTolex(startConvo)
-      // if (botResponse.responseCard) {
-      //   options = botResponse.responseCard.genericAttachments[0]
-      // }
+
       const options = botResponse.responseCard.genericAttachments[0]
       this.getOptions(options)
       this.sendBotMessage(botResponse.message, botResponse.dialogState)
@@ -250,11 +178,10 @@ export default Vue.extend({
       this.checkTime()
 		},
 		getOptions(options) {
-      if (!options) {
-        return
-      }
+      if (!options) return
+
       const buttons = []
-      let self  = this
+      const self  = this
 
       LocalStorage.set('options', options)
 
@@ -302,15 +229,11 @@ export default Vue.extend({
       if (!newMessage) return
       let inputMessage = null
 
-      if (newMessage === 'yes') {
-        inputMessage = 'Ja'
-      } else if (newMessage === 'no') {
-        inputMessage = 'Nee'
-      } else {
-        inputMessage = newMessage
-      }
+      if (newMessage === 'yes') inputMessage = 'Ja'
+      else if (newMessage === 'no') inputMessage = 'Nee'
+      else inputMessage = newMessage
 
-      let data = {
+      const data = {
         text: [inputMessage],
         from: 'me',
         sent: true,
@@ -329,11 +252,8 @@ export default Vue.extend({
 			this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
 
       const botResponse = await this.sendTolex(newMessage)
-      if (botResponse.responseCard) {
-        options = botResponse.responseCard.genericAttachments[0]
-      } else {
-        LocalStorage.set('options', '')
-			}
+      if (botResponse.responseCard) options = botResponse.responseCard.genericAttachments[0]
+      else LocalStorage.set('options', '')
 			
       this.getOptions(options)
       this.sendBotMessage(botResponse.message, botResponse.dialogState)
@@ -342,7 +262,7 @@ export default Vue.extend({
       this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
       
       setTimeout(() => {
-        let data = {
+        const data = {
           // avatar: 'https://www.simac.com/bundles/lamecowebsite/img/simac-logo.png',
           avatar: 'https://cdn.dribbble.com/users/690291/screenshots/3507754/untitled-1.gif',
           text: [message],
@@ -512,44 +432,13 @@ export default Vue.extend({
         id: 'chatbot-iframe',
         sandbox: 'allow-same-origin allow-scripts allow-popups'
       },
-      style: {
-				'pointer-events': 'all',
-				'background': 'none',
-				'border': '0px',
-				'float': 'none',
-				'position': 'absolute',
-				'top': '0px',
-				'right': '0px',
-				'bottom': '0px',
-				'left': '0px',
-				'width': '100%',
-				'height': '100%',
-				'margin': '0px',
-				'padding': '0px',
-				'min-height': '0px'
-      },
       on: { load: this.renderChildren }
      })
 
      return createElement('div', {
       attrs: {
         id: 'chatbot-chat'
-      },
-      style: {
-				'border': '0px',
-				'background-color': 'transparent',
-				'pointer-events': 'none',
-				'z-index': '2147483639',
-				'position': 'fixed',
-				'bottom': '0',
-				'width': self.chatBotWidth,
-				'height': self.chatBotHeight,
-				'overflow': 'hidden',
-				'opacity': '1',
-				'max-width': '100%',
-				'right': '0px',
-				'max-height': '100%'
-			}
+      }
     },[iframe])
   }
 })

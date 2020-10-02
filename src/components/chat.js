@@ -56,7 +56,6 @@ export default Vue.extend({
     const slotOptions = botResponse.slots.options
     
     if(!slotEmail && !slotFirstname && !slotMessages && !slotOptions){
-      console.log('slots are empty')
       this.storeConversation = []
       LocalStorage.set('conversation', this.storeConversation)
       LocalStorage.set('options', '')

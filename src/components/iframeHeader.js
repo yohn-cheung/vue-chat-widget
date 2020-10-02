@@ -18,6 +18,10 @@ const iframeHeader = `
   display: none
 }
 
+.q-card {
+  border-radius: 15px;
+}
+
 .conversation {
   height: 475px;
   overflow: auto;

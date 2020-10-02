@@ -113,6 +113,7 @@ export default Vue.extend({
       }
 
       if (wrapper.style.display === 'block') {
+        this.scrollToBottom()
         this.chatBotRoom.style.width = this.chatBotWidth
         this.chatBotRoom.style.height = this.chatBotHeight
         this.initChat()
@@ -125,8 +126,6 @@ export default Vue.extend({
     },
     scrollToBottom() {
       const conversation = this.chatBotIframe.contentWindow.document.querySelector('.conversation')
-      console.log('conversation', conversation)
-      console.log('this.chatBotIframe', this.chatBotIframe)
       setTimeout(() => {
         conversation.scrollTop = conversation.scrollHeight;
       }, 20)

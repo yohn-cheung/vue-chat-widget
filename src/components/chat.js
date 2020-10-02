@@ -37,7 +37,8 @@ export default Vue.extend({
       chatBotRoom: null,
       chatBotIframe: null,
       disableQInput: false,
-      disableQChip: false
+      disableQChip: false,
+      conversationChat: null
     }
   },
   async mounted() {
@@ -124,6 +125,8 @@ export default Vue.extend({
     },
     scrollToBottom() {
       const conversation = this.chatBotIframe.contentWindow.document.querySelector('.conversation')
+      console.log('conversation', conversation)
+      console.log('this.chatBotIframe', this.chatBotIframe)
       setTimeout(() => {
         conversation.scrollTop = conversation.scrollHeight;
       }, 20)

@@ -38,7 +38,7 @@ export default Vue.extend({
       chatBotIframe: null,
       disableQInput: false,
       disableQChip: false,
-      conversationChat: null
+      startConvo: 'hello'
     }
   },
   async mounted() {
@@ -48,8 +48,7 @@ export default Vue.extend({
 
     this.chatBotIframe = document.getElementById('chatbot-iframe')
 
-    const startConvo = 'hello'
-    const botResponse = await this.sendTolex(startConvo)
+    const botResponse = await this.sendTolex(this.startConvo)
     const slotEmail = botResponse.slots.email
     const slotFirstname = botResponse.slots.firstname
     const slotMessages = botResponse.slots.messages
@@ -120,9 +119,9 @@ export default Vue.extend({
       // mobile
       if (this.$q.platform.is.mobile && !this.$q.platform.is.ipad) {
         const conversation = this.chatBotIframe.contentWindow.document.querySelector('.conversation')
-        this.chatBotWidth = '100%',
-          this.chatBotHeight = '100%',
-          conversation.style.height = '65%'
+        this.chatBotWidth = '100%'
+        this.chatBotHeight = '100%'
+        conversation.style.height = '65%'
       }
 
       if (wrapper.style.display === 'block') {
@@ -158,8 +157,7 @@ export default Vue.extend({
     async initChat() {
       if (!this.chatConversation.length) {
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
-        const startConvo = 'hello'
-        const botResponse = await this.sendTolex(startConvo)
+        const botResponse = await this.sendTolex(this.startConvo)
 
         if (botResponse.responseCard) {
           const options = botResponse.responseCard.genericAttachments[0]
@@ -176,9 +174,8 @@ export default Vue.extend({
 
       LocalStorage.set('options', '')
       LocalStorage.set('conversation', this.storeConversation)
-
-      const startConvo = 'hello'
-      const botResponse = await this.sendTolex(startConvo)
+      
+      const botResponse = await this.sendTolex(this.startConvo)
 
       const options = botResponse.responseCard.genericAttachments[0]
       this.getOptions(options)

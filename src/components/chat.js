@@ -28,7 +28,7 @@ export default Vue.extend({
       storeConversation: [],
       createElement: null,
       company: 'Simac Triangle',
-      link: 'https://www.simac.com/nl',
+      link: 'https://www.simac.com/nl/simac-triangle',
       time: 300000,
       wrapper: null,
       wrapperButton: null,

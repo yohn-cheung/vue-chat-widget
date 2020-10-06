@@ -49,12 +49,9 @@ export default Vue.extend({
     this.chatBotIframe = document.getElementById('chatbot-iframe')
 
     const botResponse = await this.sendTolex(this.startConvo)
-    const slotEmail = botResponse.slots.email
-    const slotFirstname = botResponse.slots.firstname
-    const slotMessages = botResponse.slots.messages
-    const slotOptions = botResponse.slots.options
+    const slots = botResponse.slots
 
-    if (!slotEmail && !slotFirstname && !slotMessages && !slotOptions) {
+    if (!slots.email && !slots.firstname && !slots.messages && !slots.options) {
       this.storeConversation = []
       LocalStorage.set('conversation', this.storeConversation)
       LocalStorage.set('options', '')

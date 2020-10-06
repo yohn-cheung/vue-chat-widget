@@ -5,6 +5,22 @@ const getIframe = (createElement, renderChildren ) => {
       id: 'chatbot-iframe',
       sandbox: 'allow-same-origin allow-scripts allow-popups'
     },
+    style: {
+      'pointer-events': 'all',
+      'background': 'none',
+      'border': '0px',
+      'float': 'none',
+      'position': 'absolute',
+      'top': '0px',
+      'right': '0px',
+      'bottom': '0px',
+      'left': '0px',
+      'width': '100%',
+      'height': '100%',
+      'margin': '0px',
+      'padding': '0px',
+      'min-height': '0px'
+    },
     on: { load: renderChildren }
    })
    return iframe

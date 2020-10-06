@@ -14,7 +14,7 @@ import {
   getFooter, getButton,
   getIframe
 } from './render'
-import '../styles/chat.css'
+// import '../styles/chat.css'
 
 export default Vue.extend({
   name: 'simac-chat',
@@ -331,7 +331,22 @@ export default Vue.extend({
     self.wrapperButton = createElement('div', { attrs: { id: 'togglebutton' } }, [toggleButton])
 
     return createElement('div', {
-      attrs: { id: 'chatbot-chat' }
+      attrs: { id: 'chatbot-chat' },
+      style: {
+				'border': '0px',
+				'background-color': 'transparent',
+				'pointer-events': 'none',
+				'z-index': '2147483639',
+				'position': 'fixed',
+				'bottom': '0',
+				'width': self.chatBotWidth,
+				'height': self.chatBotHeight,
+				'overflow': 'hidden',
+				'opacity': '1',
+				'max-width': '100%',
+				'right': '0px',
+				'max-height': '100%'
+			}
     }, [iframe])
   }
 })

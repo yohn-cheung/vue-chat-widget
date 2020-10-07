@@ -144,9 +144,10 @@ export default Vue.extend({
         LocalStorage.set('conversation', this.storeConversation)
 
         this.disableQChip = true
-        this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
-        this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
-        this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.add('disabled')
+        // this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
+        // this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
+        // this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.add('disabled')
+        this.disableChat()
       }, this.time)
     },
     async initChat() {
@@ -183,6 +184,12 @@ export default Vue.extend({
       this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.remove('disabled')
 
       this.checkTime()
+    },
+    disableChat(){
+      console.log('disable Chat')
+      this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
+      this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
+      this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.add('disabled')
     },
     getOptions(options) {
       if (!options) return
@@ -288,9 +295,10 @@ export default Vue.extend({
         if (state === 'Fulfilled') {
           this.storeConversation = []
           LocalStorage.set('conversation', this.storeConversation)
-          this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
-          this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
-          this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.add('disabled')
+          // this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
+          // this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
+          // this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.add('disabled')
+          this.disableChat()
         } else {
           this.storeConversation.push(data)
           LocalStorage.set('conversation', this.storeConversation)

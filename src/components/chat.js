@@ -77,8 +77,6 @@ export default Vue.extend({
       this.storeConversation = conversation
 
       if (options) this.getOptions(options)
-
-      this.checkTime()
     }
   },
   watch: {
@@ -296,7 +294,7 @@ export default Vue.extend({
           this.storeConversation.push(data)
           LocalStorage.set('conversation', this.storeConversation)
         }
-      }, 1200)
+      }, 1500)
       this.disableQInput = false
       this.checkTime()
     }

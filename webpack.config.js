@@ -1,6 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
 var copyWebpackPlugin = require('copy-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+var fs = require("fs");
 const bundleOutputDir = './dist';
 
 module.exports = (env) => {
@@ -18,9 +20,22 @@ module.exports = (env) => {
         },
         plugins: isDevBuild
             ? [new webpack.SourceMapDevToolPlugin(), new copyWebpackPlugin({ patterns: [{ from: 'dev/'}]})]
-            : [],
+            : [new webpack.BannerPlugin(fs.readFileSync('./LICENSE', 'utf8'))],
             optimization: {
-                minimize: !isDevBuild
+                minimizer: true,
+                minimizer: [
+                    new TerserPlugin({
+                      cache: true,
+                      parallel: true,
+                      sourceMap: true, // Must be set to true if using source-maps in production
+                      terserOptions: {
+                        output: {
+                          comments: /(Simac|Triangle)/g,
+                        },
+                      },
+                      extractComments: false
+                    }),
+                  ]
             },
             mode: isDevBuild ? 'development' : 'production',
             module: {

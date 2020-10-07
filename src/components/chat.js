@@ -290,6 +290,7 @@ export default Vue.extend({
           LocalStorage.set('conversation', this.storeConversation)
           this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
           this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
+          this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.add('disabled')
         } else {
           this.storeConversation.push(data)
           LocalStorage.set('conversation', this.storeConversation)

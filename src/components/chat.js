@@ -77,8 +77,6 @@ export default Vue.extend({
       this.storeConversation = conversation
 
       if (options) this.getOptions(options)
-
-      this.checkTime()
     }
   },
   watch: {

@@ -2,7 +2,8 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 
 import Vue from 'vue'
-import Chat from './components/chat.js'
+const Chat = () => import(/* webpackChunkName: "chat" */'./components/chat.js');
+
 import './quasar.js'
 
 const DEFAULT_NAME = '_hw';

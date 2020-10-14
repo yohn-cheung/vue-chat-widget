@@ -8,7 +8,7 @@ import awsconfig from '../aws-exports';
 Amplify.configure(awsconfig);
 Vue.prototype.$Interactions = Interactions
 
-import { LocalStorage } from 'quasar'
+import { LocalStorage, date } from 'quasar'
 import { iframeHeader } from './iframeHeader'
 import {
   getHeader, getBody,
@@ -49,17 +49,7 @@ export default Vue.extend({
     }
   },
   async mounted() {
-    AWS.config.region = ''; // Region
-    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-      // Provide your Pool Id here
-      IdentityPoolId: '',
-    });
-
-    this.lexruntime = new AWS.LexRuntime();
-    this.botAlias = '$LATEST'
-    this.botName = 'xxxx'
-    this.lexUserId = 'xxx' + Date.now();
-    this.sessionAttributes = {};
+    this.setConfiguration()
 
     this.chatBotRoom = document.getElementById('chatbot-chat')
     this.chatBotRoom.style.width = '100px'
@@ -149,23 +139,58 @@ export default Vue.extend({
     },
     checkTime() {
       setTimeout(() => {
-        this.storeConversation = []
-        LocalStorage.set('options', '')
-        LocalStorage.set('conversation', this.storeConversation)
-
+        this.clearStorage()
         this.disableQChip = true
         this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
         this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
         this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.add('disabled')
       }, this.time)
     },
+    setConfiguration(){
+      AWS.config.region = ''; // Region
+      AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+      // Provide your Pool Id here
+        IdentityPoolId: '',
+      });
+
+      let timeOfChat = LocalStorage.getItem('time')
+      let currentTime = Date.now()
+      let unit = 'minutes'
+
+      let diff = date.getDateDiff(currentTime, timeOfChat, unit)
+
+      if(diff >= 5){
+        console.log('diff minutes: ', diff)
+        LocalStorage.set('options', '')
+        LocalStorage.set('conversation', this.storeConversation)
+        LocalStorage.set('ID', '')
+      }
+
+      const ID = LocalStorage.getItem('ID')
+      if(!ID){
+        const key = 'XXXXXXX' + Date.now() 
+        LocalStorage.set('ID', key)
+        this.lexUserId = key;
+      } else {
+        this.lexUserId = ID;
+      }
+
+      this.lexruntime = new AWS.LexRuntime();
+      this.botAlias = 'XXXXXX'
+      this.botName = 'XXXXXXX'
+      this.sessionAttributes = {};
+
+      console.log('lexUserID: ', this.lexUserId)
+    },
     resetChat() {
       this.chatConversation = []
-      this.storeConversation = []
+      // this.storeConversation = []
       this.btnOptions = []
 
-      LocalStorage.set('options', '')
-      LocalStorage.set('conversation', this.storeConversation)
+      // LocalStorage.set('options', '')
+      // LocalStorage.set('conversation', this.storeConversation)
+      // LocalStorage.set('ID', '')
+      this.clearStorage()
 
       this.disableQChip = false
 
@@ -173,12 +198,20 @@ export default Vue.extend({
       this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'none'
       this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.remove('disabled')
 
+      this.setConfiguration()
       this.initChat()
+    },
+    clearStorage(){
+      this.storeConversation = []
+      LocalStorage.set('options', '')
+      LocalStorage.set('conversation', this.storeConversation)
+      LocalStorage.set('ID', '')
     },
     async initChat() {
       if (!this.chatConversation.length) {
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
         await this.sendToLex(this.startConvo)
+        this.checkTime()
       }
     },
     async sendToLex(input) {
@@ -200,11 +233,12 @@ export default Vue.extend({
           console.log(err, err.stack);
         }
         if (response) {
+          console.log('response: ', response)
           await this.showBotReponse(response)
+          let timeSendMessage = Date.now()
+          LocalStorage.set('time', timeSendMessage)
         }
       })
-
-      this.checkTime()
     },
     showUserResponse(newMessage) {
       this.chatInput = ''
@@ -256,8 +290,10 @@ export default Vue.extend({
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
   
         if (response.dialogState === 'Fulfilled') {
-          this.storeConversation = []
-          LocalStorage.set('conversation', this.storeConversation)
+          // this.storeConversation = []
+          // LocalStorage.set('conversation', this.storeConversation)
+          // LocalStorage.set('ID', '')
+          this.clearStorage()
           this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
           this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
         } else {
@@ -270,6 +306,7 @@ export default Vue.extend({
 
       let options
       this.getOptions(options)
+      this.checkTime()
     },
     getOptions(options) {
       if (!options) return

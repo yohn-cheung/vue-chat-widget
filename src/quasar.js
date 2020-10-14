@@ -20,7 +20,8 @@ import {
     QItemSection,
     QItemLabel,
     LocalStorage,
-    Platform
+    Platform,
+    date
   } from 'quasar'
 
 
@@ -41,6 +42,7 @@ Vue.use(Quasar, {
     },
     plugins: {
       LocalStorage,
-      Platform
+      Platform,
+      date
     }
   })

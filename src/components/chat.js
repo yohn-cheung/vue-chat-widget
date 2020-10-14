@@ -161,14 +161,12 @@ export default Vue.extend({
 
       if(diff >= 5){
         console.log('diff minutes: ', diff)
-        LocalStorage.set('options', '')
-        LocalStorage.set('conversation', this.storeConversation)
-        LocalStorage.set('ID', '')
+        this.clearStorage()
       }
 
       const ID = LocalStorage.getItem('ID')
       if(!ID){
-        const key = 'XXXXXXX' + Date.now() 
+        const key = 'xxxxxxx' + Date.now() 
         LocalStorage.set('ID', key)
         this.lexUserId = key;
       } else {
@@ -176,8 +174,8 @@ export default Vue.extend({
       }
 
       this.lexruntime = new AWS.LexRuntime();
-      this.botAlias = 'XXXXXX'
-      this.botName = 'XXXXXXX'
+      this.botAlias = 'xxxx'
+      this.botName = 'xxxxxxxx'
       this.sessionAttributes = {};
 
       console.log('lexUserID: ', this.lexUserId)

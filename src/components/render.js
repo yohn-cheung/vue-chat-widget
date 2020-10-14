@@ -111,7 +111,9 @@ const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInp
         chatInput = event
       },
       click: function (event) {
-        sendUserResponse(chatInput)
+        if (event.keyCode === 13 && chatInput.length <= 1024) {
+          sendUserResponse(chatInput)
+        }
       }
     }
   })
@@ -130,7 +132,7 @@ const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInp
         chatInput = event
       },
       keyup: function (event) {
-        if (event.keyCode === 13) {
+        if (event.keyCode === 13 && chatInput.length <= 1024) {
           sendUserResponse(chatInput)
         }
       }

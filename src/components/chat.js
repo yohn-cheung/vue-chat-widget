@@ -166,7 +166,7 @@ export default Vue.extend({
 
       const ID = LocalStorage.getItem('ID')
       if(!ID){
-        const key = 'xxxxxxx' + Date.now() 
+        const key = 'xxxxxx' + Date.now() 
         LocalStorage.set('ID', key)
         this.lexUserId = key;
       } else {
@@ -174,8 +174,8 @@ export default Vue.extend({
       }
 
       this.lexruntime = new AWS.LexRuntime();
-      this.botAlias = 'xxxx'
-      this.botName = 'xxxxxxxx'
+      this.botAlias = 'xxxxxxx'
+      this.botName = 'xxxxxxxxx'
       this.sessionAttributes = {};
 
       console.log('lexUserID: ', this.lexUserId)
@@ -228,7 +228,12 @@ export default Vue.extend({
       
       this.lexruntime.postText(params, async (err, response) => {
         if (err) {
-          console.log(err, err.stack);
+          console.log('error: ', err);
+          // showError('Error:  ' + err.message + ' (see console for details)')
+          let errorMessage = {
+            message: 'Sorry, je bericht is te lang, kun je een korter bericht typen?'
+          }
+          await this.showBotReponse(errorMessage)
         }
         if (response) {
           console.log('response: ', response)

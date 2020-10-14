@@ -8,7 +8,7 @@ import awsconfig from '../aws-exports';
 Amplify.configure(awsconfig);
 Vue.prototype.$Interactions = Interactions
 
-import { LocalStorage, date } from 'quasar'
+import { LocalStorage } from 'quasar'
 import { iframeHeader } from './iframeHeader'
 import {
   getHeader, getBody,
@@ -16,14 +16,14 @@ import {
   getFooter, getButton,
   getIframe
 } from './render'
-// import '../styles/chat.css'
 
 export default Vue.extend({
   name: 'simac-chat',
-  props: ['config'],
+  props: ['config', 'slots'],
   data() {
     return {
       title: this.config.text.title,
+      slotsStatus: this.slots,
       chatInput: '',
       chatConversation: [],
       btnOptions: [],
@@ -147,26 +147,18 @@ export default Vue.extend({
       }, this.time)
     },
     setConfiguration(){
-      AWS.config.region = ''; // Region
+      AWS.config.region = awsconfig.aws_bots_config[0].region
       AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-      // Provide your Pool Id here
-        IdentityPoolId: '',
+        IdentityPoolId: awsconfig.aws_cognito_identity_pool_id,
       });
 
-      let timeOfChat = LocalStorage.getItem('time')
-      let currentTime = Date.now()
-      let unit = 'minutes'
-
-      let diff = date.getDateDiff(currentTime, timeOfChat, unit)
-
-      if(diff >= 5){
-        console.log('diff minutes: ', diff)
+      if(!this.slots){
         this.clearStorage()
       }
 
       const ID = LocalStorage.getItem('ID')
       if(!ID){
-        const key = 'xxxxxx' + Date.now() 
+        const key = awsconfig.aws_bots_config[0].key + Date.now() 
         LocalStorage.set('ID', key)
         this.lexUserId = key;
       } else {
@@ -174,20 +166,13 @@ export default Vue.extend({
       }
 
       this.lexruntime = new AWS.LexRuntime();
-      this.botAlias = 'xxxxxxx'
-      this.botName = 'xxxxxxxxx'
+      this.botAlias =awsconfig.aws_bots_config[0].alias
+      this.botName = awsconfig.aws_bots_config[0].name
       this.sessionAttributes = {};
-
-      console.log('lexUserID: ', this.lexUserId)
     },
     resetChat() {
       this.chatConversation = []
-      // this.storeConversation = []
       this.btnOptions = []
-
-      // LocalStorage.set('options', '')
-      // LocalStorage.set('conversation', this.storeConversation)
-      // LocalStorage.set('ID', '')
       this.clearStorage()
 
       this.disableQChip = false
@@ -209,12 +194,12 @@ export default Vue.extend({
       if (!this.chatConversation.length) {
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
         await this.sendToLex(this.startConvo)
-        this.checkTime()
       }
+      this.checkTime()
     },
     async sendToLex(input) {
       this.disableQInput = false
-      let params = {
+      const params = {
         botAlias: this.botAlias,
         botName: this.botName,
         inputText: input,
@@ -222,24 +207,22 @@ export default Vue.extend({
         sessionAttributes: this.sessionAttributes
       };
 
+      const _tempInput = 'Too long'
+      if(input.length > 1020) params.inputText = _tempInput
+
       if(input != 'hello'){
         this.showUserResponse(input);
       }
       
       this.lexruntime.postText(params, async (err, response) => {
         if (err) {
-          console.log('error: ', err);
-          // showError('Error:  ' + err.message + ' (see console for details)')
-          let errorMessage = {
+          const errorMessage = {
             message: 'Sorry, je bericht is te lang, kun je een korter bericht typen?'
           }
           await this.showBotReponse(errorMessage)
         }
         if (response) {
-          console.log('response: ', response)
           await this.showBotReponse(response)
-          let timeSendMessage = Date.now()
-          LocalStorage.set('time', timeSendMessage)
         }
       })
     },
@@ -293,9 +276,6 @@ export default Vue.extend({
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
   
         if (response.dialogState === 'Fulfilled') {
-          // this.storeConversation = []
-          // LocalStorage.set('conversation', this.storeConversation)
-          // LocalStorage.set('ID', '')
           this.clearStorage()
           this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
           this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'

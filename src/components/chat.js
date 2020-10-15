@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import AWS from 'aws-sdk';
+
 import Amplify, { Interactions } from 'aws-amplify';
 import awsconfig from '../aws-exports';
 
@@ -14,14 +16,14 @@ import {
   getFooter, getButton,
   getIframe
 } from './render'
-// import '../styles/chat.css'
 
 export default Vue.extend({
   name: 'simac-chat',
-  props: ['config'],
+  props: ['config', 'slots'],
   data() {
     return {
       title: this.config.text.title,
+      slotsStatus: this.slots,
       chatInput: '',
       chatConversation: [],
       btnOptions: [],
@@ -38,24 +40,22 @@ export default Vue.extend({
       chatBotIframe: null,
       disableQInput: false,
       disableQChip: false,
-      startConvo: 'hello'
+      startConvo: 'hello',
+      lexruntime: null,
+      botAlias: null,
+      botName: null,
+      lexUserId: null,
+      sessionAttributes: null
     }
   },
   async mounted() {
+    this.setConfiguration()
+
     this.chatBotRoom = document.getElementById('chatbot-chat')
     this.chatBotRoom.style.width = '100px'
     this.chatBotRoom.style.height = '100px'
 
     this.chatBotIframe = document.getElementById('chatbot-iframe')
-
-    const botResponse = await this.sendTolex(this.startConvo)
-    const slots = botResponse.slots
-
-    if (!slots.email && !slots.firstname && !slots.messages && !slots.options) {
-      this.storeConversation = []
-      LocalStorage.set('conversation', this.storeConversation)
-      LocalStorage.set('options', '')
-    }
 
     const conversation = LocalStorage.getItem('conversation')
     const options = LocalStorage.getItem('options')
@@ -139,42 +139,42 @@ export default Vue.extend({
     },
     checkTime() {
       setTimeout(() => {
-        this.storeConversation = []
-        LocalStorage.set('options', '')
-        LocalStorage.set('conversation', this.storeConversation)
-
+        this.clearStorage()
         this.disableQChip = true
         this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
         this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
         this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.add('disabled')
       }, this.time)
     },
-    async initChat() {
-      if (!this.chatConversation.length) {
-        this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
-        const botResponse = await this.sendTolex(this.startConvo)
+    setConfiguration(){
+      AWS.config.region = awsconfig.aws_bots_config[0].region
+      AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        IdentityPoolId: awsconfig.aws_cognito_identity_pool_id,
+      });
 
-        if (botResponse.responseCard) {
-          const options = botResponse.responseCard.genericAttachments[0]
-          this.getOptions(options)
-        }
-        this.sendBotMessage(botResponse.message, botResponse.dialogState)
-        this.checkTime()
+      if(!this.slots){
+        this.clearStorage()
       }
+
+      const ID = LocalStorage.getItem('ID')
+      const domain = window.location.hostname
+      if(!ID){
+        const key = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${domain}-${Date.now()}`
+        LocalStorage.set('ID', key)
+        this.lexUserId = key;
+      } else {
+        this.lexUserId = ID;
+      }
+
+      this.lexruntime = new AWS.LexRuntime();
+      this.botAlias =awsconfig.aws_bots_config[0].alias
+      this.botName = awsconfig.aws_bots_config[0].name
+      this.sessionAttributes = {};
     },
-    async resetChat() {
+    resetChat() {
       this.chatConversation = []
-      this.storeConversation = []
       this.btnOptions = []
-
-      LocalStorage.set('options', '')
-      LocalStorage.set('conversation', this.storeConversation)
-
-      const botResponse = await this.sendTolex(this.startConvo)
-
-      const options = botResponse.responseCard.genericAttachments[0]
-      this.getOptions(options)
-      this.sendBotMessage(botResponse.message, botResponse.dialogState)
+      this.clearStorage()
 
       this.disableQChip = false
 
@@ -182,54 +182,52 @@ export default Vue.extend({
       this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'none'
       this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.remove('disabled')
 
+      this.setConfiguration()
+      this.initChat()
+    },
+    clearStorage(){
+      this.storeConversation = []
+      LocalStorage.set('options', '')
+      LocalStorage.set('conversation', this.storeConversation)
+      LocalStorage.set('ID', '')
+    },
+    async initChat() {
+      if (!this.chatConversation.length) {
+        this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+        await this.sendToLex(this.startConvo)
+      }
       this.checkTime()
     },
-    getOptions(options) {
-      if (!options) return
+    async sendToLex(input) {
+      this.disableQInput = false
+      const params = {
+        botAlias: this.botAlias,
+        botName: this.botName,
+        inputText: input,
+        userId: this.lexUserId,
+        sessionAttributes: this.sessionAttributes
+      };
 
-      const buttons = []
-      const self = this
+      const _tempInput = 'Too long'
+      if(input.length > 1020) params.inputText = _tempInput
 
-      LocalStorage.set('options', options)
-
-      options.buttons.forEach(option => {
-        const button = this.createElement('q-chip', { props: { outline: true }, class: "bg-white text-black" }, [
-          this.createElement('q-btn', {
-            props: {
-              round: true,
-              flat: true
-            },
-            on: {
-              click: function (event) {
-                if (!self.disableQChip) {
-                  self.sendOption(option.value)
-                  self.btnOptions = []
-                }
-              }
-            }
-          }, option.text)])
-
-        buttons.push(button)
-      });
-
-      const chipsOptions = this.createElement('div', [buttons])
-
-      setTimeout(() => {
-        this.btnOptions.push(chipsOptions)
-        this.disableQInput = true
-      }, 1800)
+      if(input != 'hello'){
+        this.showUserResponse(input);
+      }
+      
+      this.lexruntime.postText(params, async (err, response) => {
+        if (err) {
+          const errorMessage = {
+            message: 'Sorry, je bericht is te lang, kun je een korter bericht typen?'
+          }
+          await this.showBotReponse(errorMessage)
+        }
+        if (response) {
+          await this.showBotReponse(response)
+        }
+      })
     },
-    async sendOption(option) {
-      await this.sendUserMessage(option)
-    },
-    async sendTolex(input) {
-      const response = await Interactions.send(
-        'contactformwidget_playground',
-        input
-      )
-      return response
-    },
-    async sendUserMessage(newMessage) {
+    showUserResponse(newMessage) {
       this.chatInput = ''
       let options = ''
 
@@ -257,37 +255,29 @@ export default Vue.extend({
       LocalStorage.set('conversation', this.storeConversation)
 
       this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
-
-      const botResponse = await this.sendTolex(newMessage)
-      if (botResponse.responseCard) options = botResponse.responseCard.genericAttachments[0]
-      else LocalStorage.set('options', '')
-
-      this.getOptions(options)
-      this.sendBotMessage(botResponse.message, botResponse.dialogState)
     },
-    sendBotMessage(message, state) {
+    async showBotReponse(response) {
       this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
-
+     
       setTimeout(() => {
         const data = {
           avatar: 'https://cdn.dribbble.com/users/690291/screenshots/3507754/untitled-1.gif',
-          text: [message],
+          text: [response.message],
           from: 'bot',
           sent: false,
           name: 'Bot Alice',
           bgColor: 'red-9',
           textColor: 'white'
         }
-
+  
         const chat = this.createElement('q-chat-message', {
           props: data
         })
         this.chatConversation.push(chat)
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
-
-        if (state === 'Fulfilled') {
-          this.storeConversation = []
-          LocalStorage.set('conversation', this.storeConversation)
+  
+        if (response.dialogState === 'Fulfilled') {
+          this.clearStorage()
           this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
           this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
         } else {
@@ -295,8 +285,50 @@ export default Vue.extend({
           LocalStorage.set('conversation', this.storeConversation)
         }
       }, 1500)
-      this.disableQInput = false
+      if (response.responseCard) options = response.responseCard.genericAttachments[0]
+      else LocalStorage.set('options', '')
+
+      let options
+      this.getOptions(options)
       this.checkTime()
+    },
+    getOptions(options) {
+      if (!options) return
+
+      const buttons = []
+      const self = this
+
+      LocalStorage.set('options', options)
+
+      options.buttons.forEach(option => {
+        const button = this.createElement('q-chip', { props: { outline: true }, class: "bg-white text-black" }, [
+          this.createElement('q-btn', {
+            props: {
+              round: true,
+              flat: true
+            },
+            on: {
+              click: function (event) {
+                if (!self.disableQChip) {
+                  self.sendUserResponse(option.value)
+                  self.btnOptions = []
+                }
+              }
+            }
+          }, option.text)])
+
+        buttons.push(button)
+      });
+
+      const chipsOptions = this.createElement('div', [buttons])
+
+      setTimeout(() => {
+        this.btnOptions.push(chipsOptions)
+        this.disableQInput = true
+      }, 1800)
+    },
+    async sendUserResponse(response){
+      await this.sendToLex(response)
     }
   },
   render(createElement) {
@@ -308,7 +340,7 @@ export default Vue.extend({
     // chat wrapper for the chat-messages, options and the q-spinners dots
     const body = getBody(createElement, self.chatConversation, self.btnOptions)
     // messages exchanged
-    const messageInput = getmessageInput(createElement, self.chatInput, self.sendUserMessage, self.disableQInput)
+    const messageInput = getmessageInput(createElement, self.chatInput, self.sendUserResponse, self.disableQInput)
     //start chat again button if the 5 minutes are passed
     const resetChatButton = getResetChatButton(createElement, self.resetChat)
     //Toggle button, to open the chat

@@ -6,7 +6,7 @@ import Vue from 'vue'
 import Chat from './components/chat.js'
 
 import './quasar.js'
-import { LocalStorage } from 'quasar'
+import { LocalStorage, date } from 'quasar'
 
 import AWS from 'aws-sdk';
 import awsconfig from './aws-exports';
@@ -60,25 +60,35 @@ const params = {
 	sessionAttributes: {}
 };
 
+const timeSendMessage = LocalStorage.getItem('time')
+const currentTime = Date.now()
+const unit = 'minutes'
+
+const diff = date.getDateDiff(currentTime, timeSendMessage, unit)
 async function starting() {
 
-	await lexruntime.postText(params, async (err, response) => {
-		if (err) {
-			status = false
-			throw new Error(`Widget can not be loaded`);
-		}
-
-		if (response) {
-			const slots = response.slots
-
-			if (!slots.email && !slots.firstname && !slots.messages && !slots.options) {
-				slotsStatus = false
+	if(diff >= 5) {
+		LocalStorage.set('time', '')
+		await lexruntime.postText(params, async (err, response) => {
+			if (err) {
+				status = false
+				throw new Error(`Widget can not be loaded`);
 			}
-
-			status = true
-			await startWidget()
-		}
-	})
+	
+			if (response) {
+				// const slots = response.slots
+				// if (!slots.email && !slots.firstname && !slots.messages && !slots.options) {
+				// 	slotsStatus = false
+				// }
+				status = true
+				await startWidget()
+			}
+		})
+	} else {
+		status = true
+		await startWidget() 
+	}
+	
 }
 
 starting()

@@ -44,6 +44,18 @@ const domain = window.location.hostname
 let lexUserId = null
 let slotsStatus = true
 
+const timeSendMessage = LocalStorage.getItem('time')
+const currentTime = Date.now()
+const unit = 'minutes'
+
+const diff = date.getDateDiff(currentTime, timeSendMessage, unit)
+
+if(diff >= 5){
+	LocalStorage.set('ID', '')
+	LocalStorage.set('time', '')
+	LocalStorage.set('conversation', [])
+}
+
 const ID = LocalStorage.getItem('ID')
 
 if (!ID) {
@@ -60,15 +72,8 @@ const params = {
 	sessionAttributes: {}
 };
 
-const timeSendMessage = LocalStorage.getItem('time')
-const currentTime = Date.now()
-const unit = 'minutes'
-
-const diff = date.getDateDiff(currentTime, timeSendMessage, unit)
 async function starting() {
-
 	if(diff >= 5) {
-		LocalStorage.set('time', '')
 		await lexruntime.postText(params, async (err, response) => {
 			if (err) {
 				status = false

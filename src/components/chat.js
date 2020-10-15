@@ -157,8 +157,9 @@ export default Vue.extend({
       }
 
       const ID = LocalStorage.getItem('ID')
+      const domain = window.location.hostname
       if(!ID){
-        const key = awsconfig.aws_bots_config[0].key + Date.now() 
+        const key = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${domain}-${Date.now()}`
         LocalStorage.set('ID', key)
         this.lexUserId = key;
       } else {

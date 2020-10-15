@@ -2,7 +2,8 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 
 import Vue from 'vue'
-const Chat = () => import(/* webpackChunkName: "chat" */'./components/chat.js');
+// const Chat = () => import(/* webpackChunkName: "chat" */'./components/chat.js');
+import Chat from './components/chat.js'
 
 import './quasar.js'
 import { LocalStorage } from 'quasar'
@@ -46,7 +47,7 @@ let slotsStatus = true
 const ID = LocalStorage.getItem('ID')
 
 if (!ID) {
-	lexUserId = awsconfig.aws_bots_config[0].key + Date.now()
+	lexUserId = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${domain}-${Date.now()}`
 } else {
 	lexUserId = ID
 }

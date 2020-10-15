@@ -8,7 +8,7 @@ import awsconfig from '../aws-exports';
 Amplify.configure(awsconfig);
 Vue.prototype.$Interactions = Interactions
 
-import { LocalStorage } from 'quasar'
+import { LocalStorage, date } from 'quasar'
 import { iframeHeader } from './iframeHeader'
 import {
   getHeader, getBody,
@@ -190,6 +190,7 @@ export default Vue.extend({
       LocalStorage.set('options', '')
       LocalStorage.set('conversation', this.storeConversation)
       LocalStorage.set('ID', '')
+      LocalStorage.set('time', '')
     },
     async initChat() {
       if (!this.chatConversation.length) {
@@ -226,6 +227,8 @@ export default Vue.extend({
           await this.showBotReponse(response)
         }
       })
+
+      LocalStorage.set('time', Date.now())
     },
     showUserResponse(newMessage) {
       this.chatInput = ''

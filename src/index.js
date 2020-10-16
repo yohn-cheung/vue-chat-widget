@@ -50,10 +50,12 @@ const unit = 'minutes'
 
 const diff = date.getDateDiff(currentTime, timeSendMessage, unit)
 
-if(diff >= 5){
+if(diff >= 15){
 	LocalStorage.set('ID', '')
 	LocalStorage.set('time', '')
+	LocalStorage.set('options', '')
 	LocalStorage.set('conversation', [])
+	LocalStorage.set('session', '')
 }
 
 const ID = LocalStorage.getItem('ID')

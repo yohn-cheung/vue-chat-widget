@@ -31,7 +31,6 @@ export default Vue.extend({
       createElement: null,
       company: 'Simac Triangle',
       link: 'https://www.simac.com/nl/simac-triangle',
-      time: 300000,
       wrapper: null,
       wrapperButton: null,
       chatBotWidth: '370px',
@@ -137,24 +136,11 @@ export default Vue.extend({
         conversation.scrollTop = conversation.scrollHeight;
       }, 20)
     },
-    checkTime() {
-      setTimeout(() => {
-        this.clearStorage()
-        this.disableQChip = true
-        this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
-        this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
-        this.chatBotIframe.contentWindow.document.getElementById('conversation').classList.add('disabled')
-      }, this.time)
-    },
     setConfiguration(){
       AWS.config.region = awsconfig.aws_bots_config[0].region
       AWS.config.credentials = new AWS.CognitoIdentityCredentials({
         IdentityPoolId: awsconfig.aws_cognito_identity_pool_id,
       });
-
-      if(!this.slots){
-        this.clearStorage()
-      }
 
       const ID = LocalStorage.getItem('ID')
       const domain = window.location.hostname
@@ -191,13 +177,13 @@ export default Vue.extend({
       LocalStorage.set('conversation', this.storeConversation)
       LocalStorage.set('ID', '')
       LocalStorage.set('time', '')
+      LocalStorage.set('session', '')
     },
     async initChat() {
       if (!this.chatConversation.length) {
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
         await this.sendToLex(this.startConvo)
       }
-      this.checkTime()
     },
     async sendToLex(input) {
       this.disableQInput = false
@@ -216,6 +202,7 @@ export default Vue.extend({
         this.showUserResponse(input);
       }
       
+      let text = null
       this.lexruntime.postText(params, async (err, response) => {
         if (err) {
           const errorMessage = {
@@ -224,10 +211,20 @@ export default Vue.extend({
           await this.showBotReponse(errorMessage)
         }
         if (response) {
-          await this.showBotReponse(response)
+          const sessionId = LocalStorage.getItem('session')
+          if(response.sessionId != sessionId && this.chatConversation.length >= 1) {
+            this.btnOptions = []
+            this.chatConversation = []
+            this.clearStorage()
+            text = 'Vanwege privacy redenen is uw chatsessie na 15 minuten gereset. De chatsessie begint zo opnieuw.'
+          } else {
+            LocalStorage.set('session', response.sessionId)
+          }
+          await this.showBotReponse(response, text)
+          text = null
         }
       })
-
+      
       LocalStorage.set('time', Date.now())
     },
     showUserResponse(newMessage) {
@@ -259,13 +256,22 @@ export default Vue.extend({
 
       this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
     },
-    async showBotReponse(response) {
+    async showBotReponse(response, text) {
       this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+
+      let message 
+      if (text === null) {
+        message = response.message
+      } else {
+        message = text
+        this.btnOptions = []
+        await this.sendToLex(this.startConvo)
+      }
      
       setTimeout(() => {
         const data = {
           avatar: 'https://cdn.dribbble.com/users/690291/screenshots/3507754/untitled-1.gif',
-          text: [response.message],
+          text: [message],
           from: 'bot',
           sent: false,
           name: 'Bot Alice',
@@ -288,12 +294,12 @@ export default Vue.extend({
           LocalStorage.set('conversation', this.storeConversation)
         }
       }, 1500)
-      if (response.responseCard) options = response.responseCard.genericAttachments[0]
-      else LocalStorage.set('options', '')
 
       let options
+      if (response.responseCard && text === null) options = response.responseCard.genericAttachments[0]
+      else LocalStorage.set('options', '')
+
       this.getOptions(options)
-      this.checkTime()
     },
     getOptions(options) {
       if (!options) return

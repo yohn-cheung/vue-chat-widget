@@ -44,5 +44,6 @@ npm run build
 
 - https://blog.jenyay.com/building-javascript-widget/
 - https://blog.jenyay.com/web-ui-widget/
+- https://aws.amazon.com/blogs/machine-learning/greetings-visitor-engage-your-web-users-with-amazon-lex/
 
 

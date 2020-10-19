@@ -197,7 +197,7 @@ export default Vue.extend({
       if(input != 'hello'){
         this.showUserResponse(input);
       }
-      
+
       let text = null
       this.lexruntime.postText(params, async (err, response) => {
         if (response) {
@@ -256,6 +256,7 @@ export default Vue.extend({
       } else {
         message = text
         this.btnOptions = []
+        this.setConfiguration()
         await this.sendToLex(this.startConvo)
       }
      

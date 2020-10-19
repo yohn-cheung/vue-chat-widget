@@ -8,7 +8,7 @@ import awsconfig from '../aws-exports';
 Amplify.configure(awsconfig);
 Vue.prototype.$Interactions = Interactions
 
-import { LocalStorage, date } from 'quasar'
+import { LocalStorage } from 'quasar'
 import { iframeHeader } from './iframeHeader'
 import {
   getHeader, getBody,
@@ -22,8 +22,6 @@ export default Vue.extend({
   props: ['config', 'slots'],
   data() {
     return {
-      title: this.config.text.title,
-      slotsStatus: this.slots,
       chatInput: '',
       chatConversation: [],
       btnOptions: [],
@@ -182,11 +180,12 @@ export default Vue.extend({
     async initChat() {
       if (!this.chatConversation.length) {
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+        this.disableQInput = true
         await this.sendToLex(this.startConvo)
       }
     },
     async sendToLex(input) {
-      this.disableQInput = false
+      // this.disableQInput = false
       const params = {
         botAlias: this.botAlias,
         botName: this.botName,
@@ -204,12 +203,12 @@ export default Vue.extend({
       
       let text = null
       this.lexruntime.postText(params, async (err, response) => {
-        if (err) {
-          const errorMessage = {
-            message: 'Sorry, je bericht is te lang, kun je een korter bericht typen?'
-          }
-          await this.showBotReponse(errorMessage)
-        }
+        // if (err) {
+        //   const errorMessage = {
+        //     message: 'Sorry, je bericht is te lang, kun je een korter bericht typen?'
+        //   }
+        //   await this.showBotReponse(errorMessage)
+        // }
         if (response) {
           const sessionId = LocalStorage.getItem('session')
           if(response.sessionId != sessionId && this.chatConversation.length >= 1) {
@@ -255,6 +254,7 @@ export default Vue.extend({
       LocalStorage.set('conversation', this.storeConversation)
 
       this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+      this.disableQInput = true
     },
     async showBotReponse(response, text) {
       this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
@@ -284,6 +284,7 @@ export default Vue.extend({
         })
         this.chatConversation.push(chat)
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
+        this.disableQInput = false
   
         if (response.dialogState === 'Fulfilled') {
           this.clearStorage()
@@ -337,7 +338,9 @@ export default Vue.extend({
       }, 1800)
     },
     async sendUserResponse(response){
-      await this.sendToLex(response)
+      if(response.length < 1024){
+        await this.sendToLex(response)
+      }
     }
   },
   render(createElement) {

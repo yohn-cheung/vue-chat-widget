@@ -20,15 +20,13 @@ const loaderObject = win[instanceName];
 
 // This can be changed later
 let defaultConfig = {
-	debug: false,
 	tenant: {
 		name: '',
 		id: ''
-	},
-	text: {
-		title: null
 	}
 }
+
+console.log('defaultConfig: ', defaultConfig)
 let widgetID = null
 
 // zelfstaande packages dat niet is afhankelijk van andere packages 
@@ -42,15 +40,15 @@ let status = false
 const lexruntime = new AWS.LexRuntime();
 const domain = window.location.hostname
 let lexUserId = null
-let slotsStatus = true
 
 const timeSendMessage = LocalStorage.getItem('time')
 const currentTime = Date.now()
 const unit = 'minutes'
+const timeSession = 15
 
 const diff = date.getDateDiff(currentTime, timeSendMessage, unit)
 
-if(diff >= 15){
+if(diff >= timeSession){
 	LocalStorage.set('ID', '')
 	LocalStorage.set('time', '')
 	LocalStorage.set('options', '')
@@ -75,7 +73,7 @@ const params = {
 };
 
 async function starting() {
-	if(diff >= 5) {
+	if(diff >= timeSession) {
 		await lexruntime.postText(params, async (err, response) => {
 			if (err) {
 				status = false
@@ -151,6 +149,6 @@ async function startWidget() {
 	new Vue({
 		el: widgetID,
 		props: ['config'],
-		render: (h) => h(Chat, { props: { config: defaultConfig, slots: slotsStatus } })
+		render: (h) => h(Chat, { props: { config: defaultConfig } })
 	})
 }

@@ -19,9 +19,10 @@ import {
 
 export default Vue.extend({
   name: 'simac-chat',
-  props: ['config', 'slots'],
+  props: ['config'],
   data() {
     return {
+      configData: this.config,
       chatInput: '',
       chatConversation: [],
       btnOptions: [],
@@ -135,15 +136,16 @@ export default Vue.extend({
       }, 20)
     },
     setConfiguration(){
+      const domain = window.location.hostname
+
       AWS.config.region = awsconfig.aws_bots_config[0].region
       AWS.config.credentials = new AWS.CognitoIdentityCredentials({
         IdentityPoolId: awsconfig.aws_cognito_identity_pool_id,
       });
 
       const ID = LocalStorage.getItem('ID')
-      const domain = window.location.hostname
       if(!ID){
-        const key = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${domain}-${Date.now()}`
+        const key = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${configData.tenant.id}-${configData.tenant.name}-${domain}-${Date.now()}`
         LocalStorage.set('ID', key)
         this.lexUserId = key;
       } else {
@@ -153,7 +155,9 @@ export default Vue.extend({
       this.lexruntime = new AWS.LexRuntime();
       this.botAlias =awsconfig.aws_bots_config[0].alias
       this.botName = awsconfig.aws_bots_config[0].name
-      this.sessionAttributes = {};
+      this.sessionAttributes = {
+        "Testing": "Koekoek"
+      };
     },
     resetChat() {
       this.chatConversation = []

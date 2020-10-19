@@ -2,7 +2,6 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 
 import Vue from 'vue'
-// const Chat = () => import(/* webpackChunkName: "chat" */'./components/chat.js');
 import Chat from './components/chat.js'
 
 import './quasar.js'
@@ -18,7 +17,6 @@ const win = window
 const instanceName = scriptElement?.attributes.getNamedItem('id')?.value ?? DEFAULT_NAME;
 const loaderObject = win[instanceName];
 
-// This can be changed later
 let defaultConfig = {
 	tenant: {
 		name: '',
@@ -59,7 +57,7 @@ if(diff >= timeSession){
 const ID = LocalStorage.getItem('ID')
 
 if (!ID) {
-	lexUserId = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${domain}-${Date.now()}`
+	lexUserId = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${defaultConfig.tenant.id}-${defaultConfig.tenant.name}-${domain}-${Date.now()}`
 } else {
 	lexUserId = ID
 }
@@ -81,10 +79,6 @@ async function starting() {
 			}
 	
 			if (response) {
-				// const slots = response.slots
-				// if (!slots.email && !slots.firstname && !slots.messages && !slots.options) {
-				// 	slotsStatus = false
-				// }
 				status = true
 				await startWidget()
 			}

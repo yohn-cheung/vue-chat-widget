@@ -194,21 +194,12 @@ export default Vue.extend({
         sessionAttributes: this.sessionAttributes
       };
 
-      const _tempInput = 'Too long'
-      if(input.length > 1020) params.inputText = _tempInput
-
       if(input != 'hello'){
         this.showUserResponse(input);
       }
       
       let text = null
       this.lexruntime.postText(params, async (err, response) => {
-        // if (err) {
-        //   const errorMessage = {
-        //     message: 'Sorry, je bericht is te lang, kun je een korter bericht typen?'
-        //   }
-        //   await this.showBotReponse(errorMessage)
-        // }
         if (response) {
           const sessionId = LocalStorage.getItem('session')
           if(response.sessionId != sessionId && this.chatConversation.length >= 1) {
@@ -338,7 +329,7 @@ export default Vue.extend({
       }, 1800)
     },
     async sendUserResponse(response){
-      if(response.length < 1024){
+      if(response.length < 1000){
         await this.sendToLex(response)
       }
     }

@@ -2,7 +2,6 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 
 import Vue from 'vue'
-// const Chat = () => import(/* webpackChunkName: "chat" */'./components/chat.js');
 import Chat from './components/chat.js'
 
 import './quasar.js'
@@ -16,17 +15,14 @@ const scriptElement = window.document.currentScript
 const win = window
 
 const instanceName = scriptElement?.attributes.getNamedItem('id')?.value ?? DEFAULT_NAME;
+const origin = scriptElement?.attributes.getNamedItem('id').ownerDocument.location.origin
 const loaderObject = win[instanceName];
+const tenant = loaderObject.q[0][1].tenant
 
-// This can be changed later
 let defaultConfig = {
-	debug: false,
 	tenant: {
 		name: '',
 		id: ''
-	},
-	text: {
-		title: null
 	}
 }
 let widgetID = null
@@ -42,15 +38,15 @@ let status = false
 const lexruntime = new AWS.LexRuntime();
 const domain = window.location.hostname
 let lexUserId = null
-let slotsStatus = true
 
 const timeSendMessage = LocalStorage.getItem('time')
 const currentTime = Date.now()
 const unit = 'minutes'
+const timeSession = 15
 
 const diff = date.getDateDiff(currentTime, timeSendMessage, unit)
 
-if(diff >= 15){
+if (diff >= timeSession) {
 	LocalStorage.set('ID', '')
 	LocalStorage.set('time', '')
 	LocalStorage.set('options', '')
@@ -71,31 +67,33 @@ const params = {
 	botName: awsconfig.aws_bots_config[0].name,
 	inputText: 'hello',
 	userId: lexUserId,
-	sessionAttributes: {}
+	sessionAttributes: {},
+	requestAttributes: {
+		parentOrigin: origin,
+		tenantID: tenant.id,
+		tenantName: tenant.name
+	}
 };
 
 async function starting() {
-	if(diff >= 5) {
+	if (diff >= timeSession) {
 		await lexruntime.postText(params, async (err, response) => {
 			if (err) {
 				status = false
+				console.log('failed loading')
 				throw new Error(`Widget can not be loaded`);
 			}
-	
+
 			if (response) {
-				// const slots = response.slots
-				// if (!slots.email && !slots.firstname && !slots.messages && !slots.options) {
-				// 	slotsStatus = false
-				// }
 				status = true
 				await startWidget()
 			}
 		})
 	} else {
 		status = true
-		await startWidget() 
+		await startWidget()
 	}
-	
+
 }
 
 starting()
@@ -140,6 +138,7 @@ async function startWidget() {
 				document.body.appendChild(targetElement)
 
 				win[`loaded-${instanceName}`] = true;
+
 				break;
 			// TODO: here you can handle additional async interactions
 			// with the widget from page (e.q. `_hw('refreshStats')`)
@@ -151,6 +150,6 @@ async function startWidget() {
 	new Vue({
 		el: widgetID,
 		props: ['config'],
-		render: (h) => h(Chat, { props: { config: defaultConfig, slots: slotsStatus } })
+		render: (h) => h(Chat, { props: { origin: origin, tenant: tenant } })
 	})
 }

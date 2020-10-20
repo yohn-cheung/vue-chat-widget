@@ -8,7 +8,7 @@ import awsconfig from '../aws-exports';
 Amplify.configure(awsconfig);
 Vue.prototype.$Interactions = Interactions
 
-import { LocalStorage, date } from 'quasar'
+import { LocalStorage } from 'quasar'
 import { iframeHeader } from './iframeHeader'
 import {
   getHeader, getBody,
@@ -19,11 +19,9 @@ import {
 
 export default Vue.extend({
   name: 'simac-chat',
-  props: ['config', 'slots'],
+  props: ['origin', 'tenant'],
   data() {
     return {
-      title: this.config.text.title,
-      slotsStatus: this.slots,
       chatInput: '',
       chatConversation: [],
       btnOptions: [],
@@ -44,7 +42,8 @@ export default Vue.extend({
       botAlias: null,
       botName: null,
       lexUserId: null,
-      sessionAttributes: null
+      sessionAttributes: null,
+      requestAttributes: null
     }
   },
   async mounted() {
@@ -137,13 +136,14 @@ export default Vue.extend({
       }, 20)
     },
     setConfiguration(){
+      const domain = window.location.hostname
+
       AWS.config.region = awsconfig.aws_bots_config[0].region
       AWS.config.credentials = new AWS.CognitoIdentityCredentials({
         IdentityPoolId: awsconfig.aws_cognito_identity_pool_id,
       });
 
       const ID = LocalStorage.getItem('ID')
-      const domain = window.location.hostname
       if(!ID){
         const key = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${domain}-${Date.now()}`
         LocalStorage.set('ID', key)
@@ -155,7 +155,11 @@ export default Vue.extend({
       this.lexruntime = new AWS.LexRuntime();
       this.botAlias =awsconfig.aws_bots_config[0].alias
       this.botName = awsconfig.aws_bots_config[0].name
-      this.sessionAttributes = {};
+      this.requestAttributes = {
+        parentOrigin: this.origin,
+        tenantID: this.tenant.id,
+        tenantName: this.tenant.name
+      };
     },
     resetChat() {
       this.chatConversation = []
@@ -182,34 +186,31 @@ export default Vue.extend({
     async initChat() {
       if (!this.chatConversation.length) {
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+        this.disableQInput = true
         await this.sendToLex(this.startConvo)
       }
     },
     async sendToLex(input) {
-      this.disableQInput = false
+      // this.disableQInput = false
       const params = {
         botAlias: this.botAlias,
         botName: this.botName,
         inputText: input,
         userId: this.lexUserId,
-        sessionAttributes: this.sessionAttributes
+        sessionAttributes: this.sessionAttributes,
+        requestAttributes : {
+          parentOrigin: this.origin,
+          tenantID: this.tenant.id,
+          tenantName: this.tenant.name
+        }
       };
-
-      const _tempInput = 'Too long'
-      if(input.length > 1020) params.inputText = _tempInput
 
       if(input != 'hello'){
         this.showUserResponse(input);
       }
-      
+
       let text = null
       this.lexruntime.postText(params, async (err, response) => {
-        if (err) {
-          const errorMessage = {
-            message: 'Sorry, je bericht is te lang, kun je een korter bericht typen?'
-          }
-          await this.showBotReponse(errorMessage)
-        }
         if (response) {
           const sessionId = LocalStorage.getItem('session')
           if(response.sessionId != sessionId && this.chatConversation.length >= 1) {
@@ -255,6 +256,7 @@ export default Vue.extend({
       LocalStorage.set('conversation', this.storeConversation)
 
       this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
+      this.disableQInput = true
     },
     async showBotReponse(response, text) {
       this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
@@ -265,6 +267,7 @@ export default Vue.extend({
       } else {
         message = text
         this.btnOptions = []
+        this.setConfiguration()
         await this.sendToLex(this.startConvo)
       }
      
@@ -284,6 +287,7 @@ export default Vue.extend({
         })
         this.chatConversation.push(chat)
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
+        this.disableQInput = false
   
         if (response.dialogState === 'Fulfilled') {
           this.clearStorage()
@@ -337,7 +341,9 @@ export default Vue.extend({
       }, 1800)
     },
     async sendUserResponse(response){
-      await this.sendToLex(response)
+      if(response.length < 1000){
+        await this.sendToLex(response)
+      }
     }
   },
   render(createElement) {

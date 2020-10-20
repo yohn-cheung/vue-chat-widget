@@ -46,7 +46,7 @@ const timeSession = 15
 
 const diff = date.getDateDiff(currentTime, timeSendMessage, unit)
 
-if(diff >= timeSession){
+if (diff >= timeSession) {
 	LocalStorage.set('ID', '')
 	LocalStorage.set('time', '')
 	LocalStorage.set('options', '')
@@ -76,13 +76,14 @@ const params = {
 };
 
 async function starting() {
-	if(diff >= timeSession) {
+	if (diff >= timeSession) {
 		await lexruntime.postText(params, async (err, response) => {
 			if (err) {
 				status = false
+				console.log('failed loading')
 				throw new Error(`Widget can not be loaded`);
 			}
-	
+
 			if (response) {
 				status = true
 				await startWidget()
@@ -90,9 +91,9 @@ async function starting() {
 		})
 	} else {
 		status = true
-		await startWidget() 
+		await startWidget()
 	}
-	
+
 }
 
 starting()
@@ -137,6 +138,7 @@ async function startWidget() {
 				document.body.appendChild(targetElement)
 
 				win[`loaded-${instanceName}`] = true;
+
 				break;
 			// TODO: here you can handle additional async interactions
 			// with the widget from page (e.q. `_hw('refreshStats')`)

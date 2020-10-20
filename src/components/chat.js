@@ -19,10 +19,9 @@ import {
 
 export default Vue.extend({
   name: 'simac-chat',
-  props: ['config'],
+  props: ['origin', 'tenant'],
   data() {
     return {
-      configData: this.config,
       chatInput: '',
       chatConversation: [],
       btnOptions: [],
@@ -43,7 +42,8 @@ export default Vue.extend({
       botAlias: null,
       botName: null,
       lexUserId: null,
-      sessionAttributes: null
+      sessionAttributes: null,
+      requestAttributes: null
     }
   },
   async mounted() {
@@ -145,7 +145,7 @@ export default Vue.extend({
 
       const ID = LocalStorage.getItem('ID')
       if(!ID){
-        const key = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${configData.tenant.id}-${configData.tenant.name}-${domain}-${Date.now()}`
+        const key = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${domain}-${Date.now()}`
         LocalStorage.set('ID', key)
         this.lexUserId = key;
       } else {
@@ -155,8 +155,10 @@ export default Vue.extend({
       this.lexruntime = new AWS.LexRuntime();
       this.botAlias =awsconfig.aws_bots_config[0].alias
       this.botName = awsconfig.aws_bots_config[0].name
-      this.sessionAttributes = {
-        "Testing": "Koekoek"
+      this.requestAttributes = {
+        parentOrigin: this.origin,
+        tenantID: this.tenant.id,
+        tenantName: this.tenant.name
       };
     },
     resetChat() {
@@ -195,7 +197,12 @@ export default Vue.extend({
         botName: this.botName,
         inputText: input,
         userId: this.lexUserId,
-        sessionAttributes: this.sessionAttributes
+        sessionAttributes: this.sessionAttributes,
+        requestAttributes : {
+          parentOrigin: this.origin,
+          tenantID: this.tenant.id,
+          tenantName: this.tenant.name
+        }
       };
 
       if(input != 'hello'){

@@ -15,7 +15,9 @@ const scriptElement = window.document.currentScript
 const win = window
 
 const instanceName = scriptElement?.attributes.getNamedItem('id')?.value ?? DEFAULT_NAME;
+const origin = scriptElement?.attributes.getNamedItem('id').ownerDocument.location.origin
 const loaderObject = win[instanceName];
+const tenant = loaderObject.q[0][1].tenant
 
 let defaultConfig = {
 	tenant: {
@@ -23,8 +25,6 @@ let defaultConfig = {
 		id: ''
 	}
 }
-
-console.log('defaultConfig: ', defaultConfig)
 let widgetID = null
 
 // zelfstaande packages dat niet is afhankelijk van andere packages 
@@ -57,7 +57,7 @@ if(diff >= timeSession){
 const ID = LocalStorage.getItem('ID')
 
 if (!ID) {
-	lexUserId = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${defaultConfig.tenant.id}-${defaultConfig.tenant.name}-${domain}-${Date.now()}`
+	lexUserId = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${domain}-${Date.now()}`
 } else {
 	lexUserId = ID
 }
@@ -67,7 +67,12 @@ const params = {
 	botName: awsconfig.aws_bots_config[0].name,
 	inputText: 'hello',
 	userId: lexUserId,
-	sessionAttributes: {}
+	sessionAttributes: {},
+	requestAttributes: {
+		parentOrigin: origin,
+		tenantID: tenant.id,
+		tenantName: tenant.name
+	}
 };
 
 async function starting() {
@@ -143,6 +148,6 @@ async function startWidget() {
 	new Vue({
 		el: widgetID,
 		props: ['config'],
-		render: (h) => h(Chat, { props: { config: defaultConfig } })
+		render: (h) => h(Chat, { props: { origin: origin, tenant: tenant } })
 	})
 }

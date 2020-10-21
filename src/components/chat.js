@@ -145,7 +145,7 @@ export default Vue.extend({
 
       const ID = LocalStorage.getItem('ID')
       if(!ID){
-        const key = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${domain}-${Date.now()}`
+        const key = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${Date.now()}`
         LocalStorage.set('ID', key)
         this.lexUserId = key;
       } else {
@@ -212,7 +212,7 @@ export default Vue.extend({
       }
 
       let text = null
-      this.lexruntime.postText(params, async (err, response) => {
+      await this.lexruntime.postText(params, async (err, response) => {
         if (response) {
           const sessionId = LocalStorage.getItem('session')
           if(response.sessionId != sessionId && this.chatConversation.length >= 1) {

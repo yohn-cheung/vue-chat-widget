@@ -46,20 +46,22 @@ const timeSession = 15
 
 const diff = date.getDateDiff(currentTime, timeSendMessage, unit)
 
-if (diff >= timeSession) {
-	LocalStorage.set('ID', '')
-	LocalStorage.set('time', '')
-	LocalStorage.set('options', '')
-	LocalStorage.set('conversation', [])
-	LocalStorage.set('session', '')
-}
 
-const ID = LocalStorage.getItem('ID')
+const ID = LocalStorage.getItem('ID') 
 
 if (!ID) {
 	lexUserId = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${domain}-${Date.now()}`
 } else {
 	lexUserId = ID
+}
+
+function clearStorage() {
+	LocalStorage.set('ID', '')
+	LocalStorage.set('time', '')
+	LocalStorage.set('options', '')
+	LocalStorage.set('conversation', [])
+	LocalStorage.set('session', '')
+	
 }
 
 const params = {
@@ -76,24 +78,29 @@ const params = {
 };
 
 async function starting() {
-	if (diff >= timeSession) {
+	const tenantName = LocalStorage.getItem('tenantName')
+	const tenantID = LocalStorage.getItem('tenantID')
+	if(diff >= timeSession || tenantName !== tenant.name || tenantID !== tenant.id) {
+		clearStorage()
 		await lexruntime.postText(params, async (err, response) => {
 			if (err) {
 				status = false
-				console.log('failed loading')
 				throw new Error(`Widget can not be loaded`);
 			}
-
+	
 			if (response) {
 				status = true
 				await startWidget()
+				LocalStorage.set('tenantName', tenant.name)
+				LocalStorage.set('tenantID', tenant.id)
 			}
 		})
 	} else {
 		status = true
 		await startWidget()
+		LocalStorage.set('tenantName', tenant.name)
+		LocalStorage.set('tenantID', tenant.id)
 	}
-
 }
 
 starting()
@@ -134,9 +141,7 @@ async function startWidget() {
 				targetElement.setAttribute('id', `widget-${instanceName}`);
 
 				widgetID = `#widget-${instanceName}`
-
 				document.body.appendChild(targetElement)
-
 				win[`loaded-${instanceName}`] = true;
 
 				break;

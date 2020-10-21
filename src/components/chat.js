@@ -207,6 +207,8 @@ export default Vue.extend({
 
       if(input != 'hello'){
         this.showUserResponse(input);
+      } else if (input === 'hello' && this.chatConversation.length >= 1) {
+        this.showUserResponse(input);
       }
 
       let text = null

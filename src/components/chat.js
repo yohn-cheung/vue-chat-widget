@@ -136,8 +136,6 @@ export default Vue.extend({
       }, 20)
     },
     setConfiguration(){
-      const domain = window.location.hostname
-
       AWS.config.region = awsconfig.aws_bots_config[0].region
       AWS.config.credentials = new AWS.CognitoIdentityCredentials({
         IdentityPoolId: awsconfig.aws_cognito_identity_pool_id,

@@ -36,7 +36,6 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
 });
 let status = false
 const lexruntime = new AWS.LexRuntime();
-const domain = window.location.hostname
 let lexUserId = null
 
 const timeSendMessage = LocalStorage.getItem('time')
@@ -50,7 +49,7 @@ const diff = date.getDateDiff(currentTime, timeSendMessage, unit)
 const ID = LocalStorage.getItem('ID') 
 
 if (!ID) {
-	lexUserId = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${domain}-${Date.now()}`
+	lexUserId = `${awsconfig.aws_bots_config[0].region}:${awsconfig.aws_bots_config[0].key}-${Date.now()}`
 } else {
 	lexUserId = ID
 }

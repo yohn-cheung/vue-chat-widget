@@ -26,6 +26,7 @@ let defaultConfig = {
 	}
 }
 let widgetID = null
+const location = window.location.origin
 
 // zelfstaande packages dat niet is afhankelijk van andere packages 
 // naam en API key, mantelzorg, vrijwilligers, algemene vragen.
@@ -154,6 +155,6 @@ async function startWidget() {
 	new Vue({
 		el: widgetID,
 		props: ['config'],
-		render: (h) => h(Chat, { props: { origin: origin, tenant: tenant } })
+		render: (h) => h(Chat, { props: { origin: origin, tenant: tenant, location: location }})
 	})
 }

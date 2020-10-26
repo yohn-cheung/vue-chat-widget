@@ -19,7 +19,7 @@ import {
 
 export default Vue.extend({
   name: 'simac-chat',
-  props: ['origin', 'tenant'],
+  props: ['origin', 'tenant', 'location'],
   data() {
     return {
       chatInput: '',
@@ -47,6 +47,8 @@ export default Vue.extend({
     }
   },
   async mounted() {
+    // let q = this.$router.currentRoute.query
+    // console.log(q)
     this.setConfiguration()
 
     this.chatBotRoom = document.getElementById('chatbot-chat')
@@ -54,7 +56,7 @@ export default Vue.extend({
     this.chatBotRoom.style.height = '100px'
 
     this.chatBotIframe = document.getElementById('chatbot-iframe')
-
+  
     const conversation = LocalStorage.getItem('conversation')
     const options = LocalStorage.getItem('options')
 
@@ -135,6 +137,13 @@ export default Vue.extend({
         conversation.scrollTop = conversation.scrollHeight;
       }, 20)
     },
+    messageHandler(evt){
+      // security check
+      if (evt.origin !== this.location) {
+        console.warn('ignoring event - invalid origin:', evt.origin);
+        return;
+      }
+    },
     setConfiguration(){
       AWS.config.region = awsconfig.aws_bots_config[0].region
       AWS.config.credentials = new AWS.CognitoIdentityCredentials({
@@ -158,6 +167,8 @@ export default Vue.extend({
         tenantID: this.tenant.id,
         tenantName: this.tenant.name
       };
+
+      window.addEventListener('message', this.messageHandler, false);
     },
     resetChat() {
       this.chatConversation = []
@@ -189,6 +200,7 @@ export default Vue.extend({
       }
     },
     async sendToLex(input) {
+      console.log('window.parent: ', window.parent)
       // this.disableQInput = false
       const params = {
         botAlias: this.botAlias,

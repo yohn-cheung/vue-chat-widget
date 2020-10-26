@@ -200,7 +200,6 @@ export default Vue.extend({
       }
     },
     async sendToLex(input) {
-      console.log('window.parent: ', window.parent)
       // this.disableQInput = false
       const params = {
         botAlias: this.botAlias,

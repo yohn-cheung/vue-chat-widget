@@ -47,8 +47,6 @@ export default Vue.extend({
     }
   },
   async mounted() {
-    // let q = this.$router.currentRoute.query
-    // console.log(q)
     this.setConfiguration()
 
     this.chatBotRoom = document.getElementById('chatbot-chat')

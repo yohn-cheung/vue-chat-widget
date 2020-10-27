@@ -1,9 +1,9 @@
-
 const getIframe = (createElement, renderChildren) => {
   const iframe = createElement('iframe', {
     attrs: {
       id: 'chatbot-iframe',
-      sandbox: 'allow-same-origin allow-scripts'
+      sandbox: 'allow-same-origin',
+      src: 'about:blank'
     },
     style: {
       'pointer-events': 'all',

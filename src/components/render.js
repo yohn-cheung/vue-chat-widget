@@ -1,10 +1,11 @@
+const url = window.location.origin
+
 const getIframe = (createElement, renderChildren) => {
   const iframe = createElement('iframe', {
     attrs: {
       id: 'chatbot-iframe',
       sandbox: 'allow-same-origin allow-scripts',
-      allow: 'none',
-      src: 'about:blank'
+      src: url + '/chat.html'
     },
     style: {
       'pointer-events': 'all',

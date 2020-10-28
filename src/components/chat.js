@@ -114,7 +114,9 @@ export default Vue.extend({
         const conversation = this.chatBotIframe.contentWindow.document.querySelector('.conversation')
         this.chatBotWidth = '100%'
         this.chatBotHeight = '100%'
-        conversation.style.height = '65%'
+        wrapper.style.margin = '0px'
+        wrapper.style.borderRadius = '0px'
+        conversation.style.height = '70%'
       }
 
       if (wrapper.style.display === 'block') {

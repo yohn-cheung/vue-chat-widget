@@ -196,6 +196,7 @@ export default Vue.extend({
         this.disableQInput = true
         await this.sendToLex(this.startConvo)
       }
+      this.chatBotIframe.contentWindow.document.querySelector('.q-field__native').focus()
     },
     async sendToLex(input) {
       // this.disableQInput = false
@@ -297,7 +298,7 @@ export default Vue.extend({
         this.chatConversation.push(chat)
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
         this.disableQInput = false
-  
+        
         if (response.dialogState === 'Fulfilled') {
           this.clearStorage()
           this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
@@ -306,6 +307,10 @@ export default Vue.extend({
           this.storeConversation.push(data)
           LocalStorage.set('conversation', this.storeConversation)
         }
+
+        setTimeout(() => {
+          this.chatBotIframe.contentWindow.document.querySelector('.q-field__native').focus()
+        }, 300)
       }, 1500)
 
       let options
@@ -315,6 +320,8 @@ export default Vue.extend({
       this.getOptions(options)
     },
     getOptions(options) {
+      console.log('test')
+      
       if (!options) return
 
       const buttons = []

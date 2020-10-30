@@ -22,6 +22,25 @@ const iframeHeader = `
   border-radius: 15px;
 }
 
+.textballon {
+  display: none;
+}
+
+.active {
+  display: block;
+  -webkit-animation: slide-in .5s ease-out;
+    -moz-animation: slide-in .5s ease-out;
+}
+
+@-webkit-keyframes slide-in {
+  0% { opacity: 0; -webkit-transform: translateX(-100%); }   
+100% { opacity: 1; -webkit-transform: translateX(0); }
+}
+@-moz-keyframes slide-in {
+  0% { opacity: 0; -moz-transform: translateX(-100%); }   
+100% { opacity: 1; -moz-transform: translateX(0); }
+}
+
 .conversation {
   height: 475px;
   overflow: auto;

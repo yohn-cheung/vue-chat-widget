@@ -14,7 +14,7 @@ import {
   getHeader, getBody,
   getmessageInput, getResetChatButton,
   getFooter, getButton,
-  getIframe
+  getIframe, textBallon
 } from './render'
 
 export default Vue.extend({
@@ -48,9 +48,10 @@ export default Vue.extend({
   },
   async mounted() {
     this.setConfiguration()
+    this.showTextballon()
 
     this.chatBotRoom = document.getElementById('chatbot-chat')
-    this.chatBotRoom.style.width = '100px'
+    this.chatBotRoom.style.width = '100px' 
     this.chatBotRoom.style.height = '100px'
 
     this.chatBotIframe = document.getElementById('chatbot-iframe')
@@ -108,6 +109,7 @@ export default Vue.extend({
       const wrapper = this.chatBotIframe.contentWindow.document.getElementById('wrapper')
       wrapper.style.display = wrapper.style.display === 'block' ? '' : 'block';
       const togglebutton = this.chatBotIframe.contentWindow.document.getElementById('togglebutton')
+      const textBallon = this.chatBotIframe.contentWindow.document.querySelector('.textballon')
 
       // mobile
       if (this.$q.platform.is.mobile && !this.$q.platform.is.ipad) {
@@ -126,9 +128,11 @@ export default Vue.extend({
         this.initChat()
         togglebutton.style.display = 'none';
       } else {
+        // this.chatBotRoom.style.width = '300px'
         this.chatBotRoom.style.width = '100px'
         this.chatBotRoom.style.height = '100px'
         togglebutton.style.display = 'block';
+        textBallon.style.display = 'none'
       }
     },
     scrollToBottom() {
@@ -143,6 +147,14 @@ export default Vue.extend({
         console.warn('ignoring event - invalid origin:', evt.origin);
         return;
       }
+    },
+    showTextballon() {
+      // setTimeout(() => {
+      //   const textBallon = this.chatBotIframe.contentWindow.document.querySelector('.textballon')
+      //   textBallon.classList.add("active");
+      //   this.chatBotRoom.style.width = '300px'
+      //   console.log('test')
+      // }, 10000)
     },
     setConfiguration(){
       AWS.config.region = awsconfig.aws_bots_config[0].region
@@ -375,13 +387,15 @@ export default Vue.extend({
     const footer = getFooter(createElement, self.company, self.link)
     // Iframe
     const iframe = getIframe(createElement, self.renderChildren)
+
+    const text = textBallon(createElement, self.toggleButtonChat)
     // wrapper
     self.wrapper = createElement('q-card', {
       class: 'q-ma-md shadow-6',
       attrs: { id: 'wrapper' },
     }, [header, body, messageInput, resetChatButton, footer])
 
-    self.wrapperButton = createElement('div', { attrs: { id: 'togglebutton' } }, [toggleButton])
+    self.wrapperButton = createElement('div', { attrs: { id: 'togglebutton' } }, [text, toggleButton])
 
     return createElement('div', {
       attrs: { id: 'chatbot-chat' },

@@ -37,7 +37,6 @@ const getResetChatButton = (createElement, resetChat) => {
 }
 
 // button
-
 const getButton = (createElement, toggleButtonChat) => {
   const img = createElement('img', {
     attrs: { src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif' }
@@ -50,6 +49,25 @@ const getButton = (createElement, toggleButtonChat) => {
   }, [qAvatar])
 
   return button
+}
+
+//text ballon 
+const textBallon = (createElement, toggleButtonChat) => {
+  const qCardSection = createElement('q-card-section', {
+    domProps: {
+      innerHTML: `Hello, come and chat with me`
+    }
+  })
+
+  const qCard = createElement('q-card', {
+    props: {
+      flat: true,
+      bordered: true
+    },
+    class: 'my-card bg-white fixed-bottom-left q-ma-md textballon',
+    on: { click: toggleButtonChat }
+  }, [qCardSection])
+  return qCard
 }
 
 // getHeader()
@@ -160,5 +178,6 @@ module.exports = {
   getmessageInput,
   getResetChatButton,
   getButton,
-  getIframe
+  getIframe,
+  textBallon
 }

@@ -54,7 +54,7 @@ const getButton = (createElement, toggleButtonChat) => {
 }
 
 // getHeader()
-const getHeader = (createElement, toggleButtonChat) => {
+const getHeader = (createElement, toggleButtonChat, resetChat) => {
   const imgHeader = createElement('img', { attrs: { src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif' } })
   const qAvatarHeader = createElement('q-avatar', [imgHeader])
   const qItemSectionAvatar = createElement('q-item-section', { props: { avatar: true } }, [qAvatarHeader])
@@ -63,6 +63,17 @@ const getHeader = (createElement, toggleButtonChat) => {
   const title = createElement('q-item-label', { class: 'text-h5' }, 'Chatbot')
   const subTitle = createElement('q-item-label', { props: { caption: true } }, 'Online')
   const qItemSectionText = createElement('q-item-section', [title, subTitle])
+
+  const resetIcon = createElement('q-btn', {
+    props: {
+      round: true,
+      flat: true,
+      icon: 'autorenew'
+    },
+    on: {
+      click: resetChat
+    }
+  })
 
   const closeIcon = createElement('q-btn', {
     props: {
@@ -75,7 +86,7 @@ const getHeader = (createElement, toggleButtonChat) => {
     }
   })
 
-  const header = createElement('q-item', { class: 'q-py-md' }, [qItemSectionAvatar, qItemSectionText, closeIcon])
+  const header = createElement('q-item', { class: 'q-py-md' }, [qItemSectionAvatar, qItemSectionText, resetIcon, closeIcon])
 
   return header
 }

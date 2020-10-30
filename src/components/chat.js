@@ -360,7 +360,7 @@ export default Vue.extend({
     self.createElement = createElement
 
     // header of the widget with avatar
-    const header = getHeader(createElement, self.toggleButtonChat)
+    const header = getHeader(createElement, self.toggleButtonChat, self.resetChat)
     // chat wrapper for the chat-messages, options and the q-spinners dots
     const body = getBody(createElement, self.chatConversation, self.btnOptions)
     // messages exchanged

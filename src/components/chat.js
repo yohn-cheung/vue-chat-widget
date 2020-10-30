@@ -43,7 +43,8 @@ export default Vue.extend({
       botName: null,
       lexUserId: null,
       sessionAttributes: null,
-      requestAttributes: null
+      requestAttributes: null,
+      message: null
     }
   },
   async mounted() {
@@ -319,9 +320,7 @@ export default Vue.extend({
 
       this.getOptions(options)
     },
-    getOptions(options) {
-      console.log('test')
-      
+    getOptions(options) {    
       if (!options) return
 
       const buttons = []
@@ -360,6 +359,9 @@ export default Vue.extend({
       if(response.length < 1000){
         await this.sendToLex(response)
       }
+    },
+    sendValue(response){
+      this.chatInput = response
     }
   },
   render(createElement) {
@@ -371,7 +373,7 @@ export default Vue.extend({
     // chat wrapper for the chat-messages, options and the q-spinners dots
     const body = getBody(createElement, self.chatConversation, self.btnOptions)
     // messages exchanged
-    const messageInput = getmessageInput(createElement, self.chatInput, self.sendUserResponse, self.disableQInput)
+    const messageInput = getmessageInput(createElement, self.chatInput, self.sendUserResponse, self.disableQInput, self.sendValue)
     //start chat again button if the 5 minutes are passed
     const resetChatButton = getResetChatButton(createElement, self.resetChat)
     //Toggle button, to open the chat

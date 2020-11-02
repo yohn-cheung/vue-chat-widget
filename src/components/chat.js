@@ -32,7 +32,7 @@ export default Vue.extend({
       wrapper: null,
       wrapperButton: null,
       chatBotWidth: '370px',
-      chatBotHeight: '690px',
+      chatBotHeight: '700px',
       chatBotRoom: null,
       chatBotIframe: null,
       disableQInput: false,

@@ -98,14 +98,14 @@ const getBody = (createElement, chatConversation, btnOptions) => {
 }
 
 //input
-const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInput) => {
+const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInput, sendValue) => {
   const sendIcon = createElement('q-btn', {
     class: 'text-grey-4',
     props: {
       icon: 'send',
       round: true,
       dense: true,
-      flat: true
+      flat: true,
     },
     on: {
       input: function (event) {
@@ -118,12 +118,14 @@ const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInp
       }
     }
   })
+
   // Inputfield of the chat
   const qInput = createElement('q-input', {
     props: {
       dense: true,
       borderless: true,
-      disable: disableQInput
+      disable: disableQInput,
+      value: chatInput,
     },
     attrs: {
       placeholder: 'Type jouw bericht in'
@@ -131,6 +133,7 @@ const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInp
     on: {
       input: function (event) {
         chatInput = event
+        sendValue(event)
       },
       keyup: function (event) {
         if (event.keyCode === 13 && chatInput.length >= 1) {
@@ -139,7 +142,11 @@ const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInp
       }
     }
   }, [sendIcon])
-  const messageInput = createElement('q-card-section', { attrs: { id: 'message-input' }, class: 'q-py-sm' }, [qInput])
+
+  let counter = chatInput.length + '/1020'
+  const messageCounter = createElement('span', {class: 'counter'}, [counter])
+
+  const messageInput = createElement('q-card-section', { attrs: { id: 'message-input' }, class: 'q-py-sm' }, [qInput, messageCounter])
   return messageInput
 }
 

@@ -32,7 +32,7 @@ export default Vue.extend({
       wrapper: null,
       wrapperButton: null,
       chatBotWidth: '370px',
-      chatBotHeight: '680px',
+      chatBotHeight: '690px',
       chatBotRoom: null,
       chatBotIframe: null,
       disableQInput: false,
@@ -350,8 +350,16 @@ export default Vue.extend({
       }, 1800)
     },
     async sendUserResponse(response){
-      if(response.length < 1000){
+      if(response.length < 1024){
         await this.sendToLex(response)
+      }
+    },
+    sendValue(response){
+      this.chatInput = response
+      if(this.chatInput.length >= 1014){
+        this.chatBotIframe.contentWindow.document.querySelector('.counter').style.color = 'red'
+      } else {
+        this.chatBotIframe.contentWindow.document.querySelector('.counter').style.color = 'black'
       }
     }
   },
@@ -364,7 +372,7 @@ export default Vue.extend({
     // chat wrapper for the chat-messages, options and the q-spinners dots
     const body = getBody(createElement, self.chatConversation, self.btnOptions)
     // messages exchanged
-    const messageInput = getmessageInput(createElement, self.chatInput, self.sendUserResponse, self.disableQInput)
+    const messageInput = getmessageInput(createElement, self.chatInput, self.sendUserResponse, self.disableQInput, self.sendValue)
     //start chat again button if the 5 minutes are passed
     const resetChatButton = getResetChatButton(createElement, self.resetChat)
     //Toggle button, to open the chat

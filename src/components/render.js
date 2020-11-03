@@ -98,7 +98,7 @@ const getBody = (createElement, chatConversation, btnOptions) => {
 }
 
 //input
-const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInput) => {
+const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInput, sendValue) => {
   const sendIcon = createElement('q-btn', {
     class: 'text-grey-4',
     props: {
@@ -123,7 +123,8 @@ const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInp
     props: {
       dense: true,
       borderless: true,
-      disable: disableQInput
+      disable: disableQInput,
+      value: chatInput
     },
     attrs: {
       placeholder: 'Type jouw bericht in'
@@ -131,6 +132,7 @@ const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInp
     on: {
       input: function (event) {
         chatInput = event
+        sendValue(event)
       },
       keyup: function (event) {
         if (event.keyCode === 13 && chatInput.length >= 1) {

@@ -44,7 +44,6 @@ export default Vue.extend({
       lexUserId: null,
       sessionAttributes: null,
       requestAttributes: null,
-      status: false
     }
   },
   async mounted() {
@@ -224,8 +223,6 @@ export default Vue.extend({
         if (response) {
           const sessionId = LocalStorage.getItem('session')
           if(response.sessionId != sessionId && this.chatConversation.length >= 1) {
-            this.btnOptions = []
-            this.chatConversation = []
             this.clearStorage()
           } else {
             LocalStorage.set('session', response.sessionId)
@@ -286,18 +283,13 @@ export default Vue.extend({
         this.chatConversation.push(chat)
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
         this.disableQInput = false
- 
+
         if (response.dialogState === 'Fulfilled') {
-          const text = { message: 'Ik ben altijd bereikbaar, mocht je nog meer vragen hebben. Reset de chat om een nieuwe vraag te stellen.'}
-          this.showBotReponse(text)
           this.clearStorage()
-          this.status = true
           this.disableQInput = true
-        } else if(!this.status) {
+        } else {
           this.storeConversation.push(data)
           LocalStorage.set('conversation', this.storeConversation)
-        } else if(this.status) {
-          this.disableQInput = true
         }
 
         setTimeout(() => {
@@ -347,7 +339,7 @@ export default Vue.extend({
       }, 1800)
     },
     async sendUserResponse(response){
-      if(response.length < 1000 && !this.status){
+      if(response.length < 1024 ){
         await this.sendToLex(response)
       }
     },

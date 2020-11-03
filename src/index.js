@@ -42,7 +42,7 @@ let lexUserId = null
 const timeSendMessage = LocalStorage.getItem('time')
 const currentTime = Date.now()
 const unit = 'minutes'
-const timeSession = 15
+const timeSession = 60
 
 const diff = date.getDateDiff(currentTime, timeSendMessage, unit)
 

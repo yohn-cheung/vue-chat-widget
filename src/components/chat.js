@@ -286,7 +286,7 @@ export default Vue.extend({
         this.chatConversation.push(chat)
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
         this.disableQInput = false
-        
+ 
         if (response.dialogState === 'Fulfilled') {
           const text = { message: 'Ik ben altijd bereikbaar, mocht je nog meer vragen hebben. Reset de chat om een nieuwe vraag te stellen.'}
           this.showBotReponse(text)
@@ -296,6 +296,8 @@ export default Vue.extend({
         } else if(!this.status) {
           this.storeConversation.push(data)
           LocalStorage.set('conversation', this.storeConversation)
+        } else if(this.status) {
+          this.disableQInput = true
         }
 
         setTimeout(() => {
@@ -347,9 +349,6 @@ export default Vue.extend({
     async sendUserResponse(response){
       if(response.length < 1000 && !this.status){
         await this.sendToLex(response)
-      } else if(this.status) {
-        this.resetChat()
-        this.status = false
       }
     },
     sendValue(response){

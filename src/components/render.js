@@ -110,6 +110,7 @@ const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInp
     on: {
       input: function (event) {
         chatInput = event
+        sendValue(event)
       },
       click: function (event) {
         if (chatInput.length >= 1) {
@@ -122,6 +123,9 @@ const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInp
   // Inputfield of the chat
   const qInput = createElement('q-input', {
     props: {
+      'bottom-slots': true,
+      counter: true,
+      maxlength: 1024,
       dense: true,
       borderless: true,
       disable: disableQInput,
@@ -143,10 +147,7 @@ const getmessageInput = (createElement, chatInput, sendUserResponse, disableQInp
     }
   }, [sendIcon])
 
-  let counter = chatInput.length + '/1020'
-  const messageCounter = createElement('span', {class: 'counter'}, [counter])
-
-  const messageInput = createElement('q-card-section', { attrs: { id: 'message-input' }, class: 'q-py-sm' }, [qInput, messageCounter])
+  const messageInput = createElement('q-card-section', { attrs: { id: 'message-input' }, class: 'q-py-sm' }, [qInput])
   return messageInput
 }
 

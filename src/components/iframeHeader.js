@@ -48,13 +48,6 @@ const iframeHeader = `
 #message-input {
   border-top: 1px solid rgb(238, 238, 238);
   border-bottom: 1px solid rgb(238, 238, 238);
-  padding-bottom: 25px;
-}
-
-.counter {
-  float: right;
-  font-size: 10px;
-  padding-top: 2px;
 }
 
 .footer {

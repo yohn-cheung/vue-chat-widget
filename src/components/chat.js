@@ -357,9 +357,10 @@ export default Vue.extend({
     sendValue(response){
       this.chatInput = response
       if(this.chatInput.length >= 1014){
-        this.chatBotIframe.contentWindow.document.querySelector('.counter').style.color = 'red'
+        this.chatBotIframe.contentWindow.document.querySelector('.q-field__counter').style.color = 'red'
       } else {
-        this.chatBotIframe.contentWindow.document.querySelector('.counter').style.color = 'black'
+        this.chatBotIframe.contentWindow.document.querySelector('.q-field__counter').style.color = 'black'
+        this.chatBotIframe.contentWindow.document.querySelector('.q-field__counter').style.opacity = '0.5'
       }
     }
   },

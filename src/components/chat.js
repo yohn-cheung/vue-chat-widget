@@ -32,7 +32,7 @@ export default Vue.extend({
       wrapper: null,
       wrapperButton: null,
       chatBotWidth: '370px',
-      chatBotHeight: '700px',
+      chatBotHeight: '680px',
       chatBotRoom: null,
       chatBotIframe: null,
       disableQInput: false,
@@ -43,7 +43,8 @@ export default Vue.extend({
       botName: null,
       lexUserId: null,
       sessionAttributes: null,
-      requestAttributes: null
+      requestAttributes: null,
+      status: false
     }
   },
   async mounted() {
@@ -196,6 +197,7 @@ export default Vue.extend({
         this.disableQInput = true
         await this.sendToLex(this.startConvo)
       }
+      this.chatBotIframe.contentWindow.document.querySelector('.q-field__native').focus()
     },
     async sendToLex(input) {
       // this.disableQInput = false
@@ -218,7 +220,6 @@ export default Vue.extend({
         this.showUserResponse(input);
       }
 
-      let text = null
       await this.lexruntime.postText(params, async (err, response) => {
         if (response) {
           const sessionId = LocalStorage.getItem('session')
@@ -226,12 +227,10 @@ export default Vue.extend({
             this.btnOptions = []
             this.chatConversation = []
             this.clearStorage()
-            text = 'Vanwege privacy redenen is uw chatsessie na 15 minuten gereset. De chatsessie begint zo opnieuw.'
           } else {
             LocalStorage.set('session', response.sessionId)
           }
-          await this.showBotReponse(response, text)
-          text = null
+          await this.showBotReponse(response)
         }
       })
       
@@ -267,23 +266,13 @@ export default Vue.extend({
       this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
       this.disableQInput = true
     },
-    async showBotReponse(response, text) {
+    async showBotReponse(response) {
       this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
-
-      let message 
-      if (text === null) {
-        message = response.message
-      } else {
-        message = text
-        this.btnOptions = []
-        this.setConfiguration()
-        await this.sendToLex(this.startConvo)
-      }
      
       setTimeout(() => {
         const data = {
           avatar: 'https://cdn.dribbble.com/users/690291/screenshots/3507754/untitled-1.gif',
-          text: [message],
+          text: [response.message],
           from: 'bot',
           sent: false,
           name: 'Bot Alice',
@@ -297,24 +286,32 @@ export default Vue.extend({
         this.chatConversation.push(chat)
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
         this.disableQInput = false
-  
+ 
         if (response.dialogState === 'Fulfilled') {
+          const text = { message: 'Ik ben altijd bereikbaar, mocht je nog meer vragen hebben. Reset de chat om een nieuwe vraag te stellen.'}
+          this.showBotReponse(text)
           this.clearStorage()
-          this.chatBotIframe.contentWindow.document.getElementById('message-input').style.display = 'none'
-          this.chatBotIframe.contentWindow.document.getElementById('reset-chat-button').style.display = 'block'
-        } else {
+          this.status = true
+          this.disableQInput = true
+        } else if(!this.status) {
           this.storeConversation.push(data)
           LocalStorage.set('conversation', this.storeConversation)
+        } else if(this.status) {
+          this.disableQInput = true
         }
+
+        setTimeout(() => {
+          this.chatBotIframe.contentWindow.document.querySelector('.q-field__native').focus()
+        }, 300)
       }, 1500)
 
       let options
-      if (response.responseCard && text === null) options = response.responseCard.genericAttachments[0]
+      if (response.responseCard) options = response.responseCard.genericAttachments[0]
       else LocalStorage.set('options', '')
 
       this.getOptions(options)
     },
-    getOptions(options) {
+    getOptions(options) {    
       if (!options) return
 
       const buttons = []
@@ -350,7 +347,7 @@ export default Vue.extend({
       }, 1800)
     },
     async sendUserResponse(response){
-      if(response.length < 1024){
+      if(response.length < 1024 && !this.status){
         await this.sendToLex(response)
       }
     },
@@ -369,7 +366,7 @@ export default Vue.extend({
     self.createElement = createElement
 
     // header of the widget with avatar
-    const header = getHeader(createElement, self.toggleButtonChat)
+    const header = getHeader(createElement, self.toggleButtonChat, self.resetChat)
     // chat wrapper for the chat-messages, options and the q-spinners dots
     const body = getBody(createElement, self.chatConversation, self.btnOptions)
     // messages exchanged

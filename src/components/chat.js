@@ -37,6 +37,7 @@ export default Vue.extend({
       chatBotIframe: null,
       disableQInput: false,
       disableQChip: false,
+      disableReset: false,
       startConvo: 'hello',
       lexruntime: null,
       botAlias: null,
@@ -170,7 +171,6 @@ export default Vue.extend({
     },
     resetChat() {
       this.chatConversation = []
-      this.btnOptions = []
       this.clearStorage()
 
       this.disableQChip = false
@@ -183,8 +183,9 @@ export default Vue.extend({
       this.initChat()
     },
     clearStorage(){
+      this.btnOptions = []
       this.storeConversation = []
-      LocalStorage.set('options', '')
+      LocalStorage.set('options', this.btnOptions)
       LocalStorage.set('conversation', this.storeConversation)
       LocalStorage.set('ID', '')
       LocalStorage.set('time', '')
@@ -194,6 +195,7 @@ export default Vue.extend({
       if (!this.chatConversation.length) {
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
         this.disableQInput = true
+        this.disableReset = true
         await this.sendToLex(this.startConvo)
       }
       this.chatBotIframe.contentWindow.document.querySelector('.q-field__native').focus()
@@ -262,6 +264,7 @@ export default Vue.extend({
 
       this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'block'
       this.disableQInput = true
+      this.disableReset = true
 
       this.chatBotIframe.contentWindow.document.querySelector('.q-field__counter').style.color = 'black'
       this.chatBotIframe.contentWindow.document.querySelector('.q-field__counter').style.opacity = '0.5'
@@ -286,6 +289,7 @@ export default Vue.extend({
         this.chatConversation.push(chat)
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
         this.disableQInput = false
+        this.disableReset = false
 
         if (response.dialogState === 'Fulfilled') {
           this.clearStorage()
@@ -306,7 +310,8 @@ export default Vue.extend({
 
       this.getOptions(options)
     },
-    getOptions(options) {    
+    getOptions(options) {
+      this.btnOptions = []
       if (!options) return
 
       const buttons = []
@@ -339,7 +344,7 @@ export default Vue.extend({
       setTimeout(() => {
         this.btnOptions.push(chipsOptions)
         this.disableQInput = true
-      }, 1800)
+      }, 1700)
     },
     async sendUserResponse(response){
       if(response.length < 1024 ){
@@ -361,7 +366,7 @@ export default Vue.extend({
     self.createElement = createElement
 
     // header of the widget with avatar
-    const header = getHeader(createElement, self.toggleButtonChat, self.resetChat)
+    const header = getHeader(createElement, self.toggleButtonChat, self.resetChat, self.disableReset)
     // chat wrapper for the chat-messages, options and the q-spinners dots
     const body = getBody(createElement, self.chatConversation, self.btnOptions)
     // messages exchanged

@@ -54,7 +54,7 @@ const getButton = (createElement, toggleButtonChat) => {
 }
 
 // getHeader()
-const getHeader = (createElement, toggleButtonChat, resetChat) => {
+const getHeader = (createElement, toggleButtonChat, resetChat, disableReset) => {
   const imgHeader = createElement('img', { attrs: { src: 'https://i.pinimg.com/originals/7d/9b/1d/7d9b1d662b28cd365b33a01a3d0288e1.gif' } })
   const qAvatarHeader = createElement('q-avatar', [imgHeader])
   const qItemSectionAvatar = createElement('q-item-section', { props: { avatar: true } }, [qAvatarHeader])
@@ -68,7 +68,8 @@ const getHeader = (createElement, toggleButtonChat, resetChat) => {
     props: {
       round: true,
       flat: true,
-      icon: 'autorenew'
+      icon: 'autorenew',
+      disable: disableReset
     },
     on: {
       click: resetChat

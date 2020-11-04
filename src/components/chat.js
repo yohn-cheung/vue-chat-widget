@@ -45,6 +45,7 @@ export default Vue.extend({
       lexUserId: null,
       sessionAttributes: null,
       requestAttributes: null,
+      status: false
     }
   },
   async mounted() {
@@ -181,6 +182,7 @@ export default Vue.extend({
 
       this.setConfiguration()
       this.initChat()
+      this.status = false
     },
     clearStorage(){
       this.btnOptions = []
@@ -239,7 +241,7 @@ export default Vue.extend({
       this.chatInput = ''
       let options = ''
 
-      if (!newMessage) return
+      if (!newMessage || newMessage === 'start over') return
       let inputMessage = null
 
       if (newMessage === 'yes') inputMessage = 'Ja'
@@ -288,18 +290,31 @@ export default Vue.extend({
         })
         this.chatConversation.push(chat)
         this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
-        this.disableQInput = false
+        if(!this.status) {
+          this.disableQInput = false
+        }
         this.disableReset = false
 
         let intentName = response.intentName
 
+        console.log('response: ', response)
+
         if (intentName === 'bridgeIntent') {
           this.clearStorage()
           this.disableQInput = true
-        } else if (response.dialogState === 'Fulfilled' && intentName === 'contactus'){
+          this.status = true
+          console.log('this.status: ',this.status)
+          // this.sendToLex('start over')
+          this.sendUserResponse('start over') 
+        } else if (response.dialogState === 'Fulfilled' && intentName === 'ContactSimacTriangle'){ // contactus
           this.clearStorage()
           this.disableQInput = true
-        } else {
+          this.status = true
+          // this.sendToLex('test')
+          console.log('this.status: ',this.status)
+          this.sendUserResponse('start over')
+          this.status = true
+        } else if(!this.status) {
           this.storeConversation.push(data)
           LocalStorage.set('conversation', this.storeConversation)
         }

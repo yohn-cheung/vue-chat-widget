@@ -291,7 +291,12 @@ export default Vue.extend({
         this.disableQInput = false
         this.disableReset = false
 
-        if (response.dialogState === 'Fulfilled') {
+        let intentName = response.intentName
+
+        if (intentName === 'bridgeIntent') {
+          this.clearStorage()
+          this.disableQInput = true
+        } else if (response.dialogState === 'Fulfilled' && intentName === 'contactus'){
           this.clearStorage()
           this.disableQInput = true
         } else {

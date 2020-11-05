@@ -227,7 +227,7 @@ export default Vue.extend({
         if(err){
           const data = {
             avatar: 'https://cdn.dribbble.com/users/690291/screenshots/3507754/untitled-1.gif',
-            text: ['Sorry er ging iets mis met uw bericht, Reset de chat om een nieuwe vraag te stellen.'],
+            text: ['Sorry er ging iets mis. Reset de chat om een nieuwe vraag te stellen.'],
             from: 'bot',
             sent: false,
             name: 'Bot Alice',

@@ -236,9 +236,10 @@ export default Vue.extend({
           const chat = this.createElement('q-chat-message', {
             props: data
           })
-          
+
           this.chatConversation.push(chat)
           this.disableReset = false
+          this.disableQChip = true
           this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
         }
 

@@ -224,6 +224,27 @@ export default Vue.extend({
       }
 
       await this.lexruntime.postText(params, async (err, response) => {
+        if(err){
+          const data = {
+            avatar: 'https://cdn.dribbble.com/users/690291/screenshots/3507754/untitled-1.gif',
+            text: ['Sorry er ging iets mis. Reset de chat om een nieuwe vraag te stellen.'],
+            from: 'bot',
+            sent: false,
+            name: 'Bot Alice',
+            bgColor: 'red-9',
+            textColor: 'white'
+          }
+    
+          const chat = this.createElement('q-chat-message', {
+            props: data
+          })
+
+          this.chatConversation.push(chat)
+          this.disableReset = false
+          this.disableQChip = true
+          this.chatBotIframe.contentWindow.document.getElementById('spinner').style.display = 'none'
+        }
+
         if (response) {
           const sessionId = LocalStorage.getItem('session')
           if(response.sessionId != sessionId && this.chatConversation.length >= 1) {

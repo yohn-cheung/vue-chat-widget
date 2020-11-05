@@ -230,7 +230,7 @@ export default Vue.extend({
             text: ['Sorry er ging iets mis. Reset de chat om een nieuwe vraag te stellen.'],
             from: 'bot',
             sent: false,
-            name: 'Bot Alice',
+            name: 'Simon',
             bgColor: 'red-9',
             textColor: 'white'
           }
@@ -301,7 +301,7 @@ export default Vue.extend({
           text: [response.message],
           from: 'bot',
           sent: false,
-          name: 'Bot Alice',
+          name: 'Simon',
           bgColor: 'red-9',
           textColor: 'white'
         }

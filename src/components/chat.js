@@ -297,21 +297,15 @@ export default Vue.extend({
 
         let intentName = response.intentName
 
-        console.log('response: ', response)
-
         if (intentName === 'bridgeIntent') {
           this.clearStorage()
           this.disableQInput = true
           this.status = true
-          console.log('this.status: ',this.status)
-          // this.sendToLex('start over')
           this.sendUserResponse('start over') 
         } else if (response.dialogState === 'Fulfilled' && intentName === 'ContactSimacTriangle'){ // contactus
           this.clearStorage()
           this.disableQInput = true
           this.status = true
-          // this.sendToLex('test')
-          console.log('this.status: ',this.status)
           this.sendUserResponse('start over')
           this.status = true
         } else if(!this.status) {
